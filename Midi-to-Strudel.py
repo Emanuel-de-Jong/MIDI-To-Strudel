@@ -10,12 +10,12 @@ NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 def print_usage():
     usage_lines = [
         "Usage options:",
-        "  -m, --midi                Path to MIDI file [default: Uses first .mid in folder]",
-        "  -b, --bar-limit           The amount of bars to convert. 0 means no limit. [default: 0]",
-        "  -f, --flat-sequence-mode  No complex timing or chords, just the notes sequentially per bar. [default: off]",
-        "  -r, --max-notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...)."
-        "                            Higher is more error proof but too high might break the script. [default: 128]",
-        "  -t, --tab-size            How many spaces to use for indentation in the output [default: 2]",
+        "  -m, --midi            Path to the Midi file. [default: Uses first .mid in folder]",
+        "  -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]",
+        "  -f, --flat-sequences  No complex timing or chords. [default: off]",
+        "  -r, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).",
+        "                        Higher is more error proof but too high can break the code. [default: 128]",
+        "  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]",
         ""
     ]
     print('\n'.join(usage_lines))
@@ -26,8 +26,8 @@ def parse_args():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('-m', '--midi', type=str)
     parser.add_argument('-b', '--bar-limit', type=int, default=0)
-    parser.add_argument('-f', '--flat-sequence-mode', action='store_true')
-    parser.add_argument('-r', '--max-notes-per-bar', type=int, default=128)
+    parser.add_argument('-f', '--flat-sequences', action='store_true')
+    parser.add_argument('-r', '--notes-per-bar', type=int, default=128)
     parser.add_argument('-t', '--tab-size', type=int, default=2)
     return parser.parse_args()
 
@@ -62,7 +62,7 @@ def get_tempo_and_bpm(mid):
 
 def build_target_lengths():
     lengths = []
-    n = args.max_notes_per_bar
+    n = args.notes_per_bar
     while n >= 1:
         lengths.append(n)
         n //= 2
@@ -72,7 +72,7 @@ TARGET_LENGTHS = build_target_lengths()
 
 def quantize_time(timestamp, cycle_start, cycle_len):
     pos = (timestamp - cycle_start) / cycle_len
-    return round(pos * args.max_notes_per_bar) / args.max_notes_per_bar
+    return round(pos * args.notes_per_bar) / args.notes_per_bar
 
 def simplify_subdivisions(subdivs):
     def is_simplifiable(subs, target_len):
@@ -131,7 +131,7 @@ def poly_mode_output(events, cycle_start, cycle_len):
     for t, n in events:
         pos = quantize_time(t, cycle_start, cycle_len)
         for existing in time_groups:
-            if abs(pos - existing) < 1 / args.max_notes_per_bar:
+            if abs(pos - existing) < 1 / args.notes_per_bar:
                 time_groups[existing].append(n)
                 break
         else:
@@ -140,10 +140,10 @@ def poly_mode_output(events, cycle_start, cycle_len):
     if not time_groups:
         return '-'
 
-    subdivisions = ['-'] * args.max_notes_per_bar
+    subdivisions = ['-'] * args.notes_per_bar
     for pos in sorted(time_groups):
-        idx = int(round(pos * args.max_notes_per_bar))
-        if idx < args.max_notes_per_bar:
+        idx = int(round(pos * args.notes_per_bar))
+        if idx < args.notes_per_bar:
             group = time_groups[pos]
             subdivisions[idx] = group[0] if len(group) == 1 else f"[{','.join(group)}]"
 
@@ -174,7 +174,7 @@ def build_track_output(events, cycle_len, bpm):
                 bars.append('-')
                 continue
 
-            bar = flat_mode_output(notes_in_cycle) if args.flat_sequence_mode else poly_mode_output(notes_in_cycle, start, cycle_len)
+            bar = flat_mode_output(notes_in_cycle) if args.flat_sequences else poly_mode_output(notes_in_cycle, start, cycle_len)
             bars.append(bar)
 
         if bars:

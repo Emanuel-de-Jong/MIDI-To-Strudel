@@ -25,12 +25,12 @@ $: note(`<
 
 ## Usage
 ```
--m, --midi                Path to MIDI file [default: Uses first .mid in folder]
--b, --bar-limit           The amount of bars to convert. 0 means no limit. [default: 0]
--f, --flat-sequence-mode  No complex timing or chords, just the notes sequentially per bar. [default: off]
--r, --max-notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).
-                          Higher is more error proof but too high might break the script. [default: 128]
--t, --tab-size            How many spaces to use for indentation in the output [default: 2]
+  -m, --midi            Path to the Midi file. [default: Uses first .mid in folder]
+  -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]
+  -f, --flat-sequences  No complex timing or chords. [default: off]
+  -r, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).
+                        Higher is more error proof but too high can break the code. [default: 128]
+  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]
 ```
 
 ## TODO
