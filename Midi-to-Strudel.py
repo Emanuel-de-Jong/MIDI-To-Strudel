@@ -13,9 +13,9 @@ def print_usage():
         "  -m, --midi            Path to the Midi file. [default: Uses first .mid in folder]",
         "  -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]",
         "  -f, --flat-sequences  No complex timing or chords. [default: off]",
+        "  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]",
         "  -r, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).",
         "                        Higher is more error proof but too high can break the code. [default: 128]",
-        "  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]",
         ""
     ]
     print('\n'.join(usage_lines))
@@ -27,8 +27,8 @@ def parse_args():
     parser.add_argument('-m', '--midi', type=str)
     parser.add_argument('-b', '--bar-limit', type=int, default=0)
     parser.add_argument('-f', '--flat-sequences', action='store_true')
-    parser.add_argument('-r', '--notes-per-bar', type=int, default=128)
     parser.add_argument('-t', '--tab-size', type=int, default=2)
+    parser.add_argument('-r', '--notes-per-bar', type=int, default=128)
     return parser.parse_args()
 
 args = parse_args()
@@ -45,6 +45,7 @@ def load_midi_file():
             print(f"MIDI file not found: {args.midi}")
             sys.exit(1)
         return mido.MidiFile(args.midi)
+    
     midi_files = glob.glob("*.mid")
     if not midi_files:
         print("No MIDI files found")
@@ -57,6 +58,7 @@ def get_tempo_and_bpm(mid):
         if msg.type == 'set_tempo':
             tempo = msg.tempo
             break
+    
     bpm = mido.tempo2bpm(tempo)
     return tempo, bpm
 
@@ -78,6 +80,7 @@ def simplify_subdivisions(subdivs):
     def is_simplifiable(subs, target_len):
         if len(subs) % target_len != 0:
             return False
+        
         step = len(subs) // target_len
         for i in range(target_len):
             chunk = subs[i * step:(i + 1) * step]
@@ -101,12 +104,12 @@ def simplify_subdivisions(subdivs):
             break
     return current
 
-def collect_note_events(mid, ticks, tempo):
+def collect_note_events(mid, tempo):
     events = {}
     for idx, track in enumerate(mid.tracks):
         time_sec = 0
         for msg in track:
-            time_sec += mido.tick2second(msg.time, ticks, tempo)
+            time_sec += mido.tick2second(msg.time, mid.ticks_per_beat, tempo)
             if msg.type == 'note_on' and msg.velocity > 0:
                 events.setdefault(idx, []).append((time_sec, note_num_to_str(msg.note)))
     return events
@@ -197,9 +200,8 @@ def build_track_output(events, cycle_len, bpm):
 
 def main():
     mid = load_midi_file()
-    ticks = mid.ticks_per_beat
     tempo, bpm = get_tempo_and_bpm(mid)
-    events = collect_note_events(mid, ticks, tempo)
+    events = collect_note_events(mid, tempo)
     cycle_len = 60 / bpm * 4
     result = build_track_output(events, cycle_len, bpm)
 
@@ -213,8 +215,8 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        import traceback
         from datetime import datetime
+        import traceback
 
         timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
         with open('error.log', 'a') as f:

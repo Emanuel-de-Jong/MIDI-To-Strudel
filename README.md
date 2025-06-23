@@ -26,8 +26,8 @@ $: note(`<
 ## Usage
 1. Run `pip install -r requirements.txt` to install the dependencies.
 2. There are two ways to run the tool:
-    1. If you're on Windows, the easiest way is dragging your Midi file onto the `Drag-and-Drop.bat` script. However, this way you can't set console arguments.
-    2. Run the tool directly with `python Midi-to-Strudel.py`.
+    - If you're on Windows, the easiest way is dragging your Midi file onto the `Drag-and-Drop.bat` script. However, this way you can't set console arguments.
+    - Run the tool directly with `python Midi-to-Strudel.py`.
 3. Get the Strudel code. Either from the text in the console or the content of the new `result.txt` file.
 
 ### Arguments
@@ -35,9 +35,9 @@ $: note(`<
   -m, --midi            Path to the Midi file. [default: Uses first .mid in folder]
   -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]
   -f, --flat-sequences  No complex timing or chords. [default: off]
+  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]
   -r, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).
                         Higher is more error proof but too high can break the code. [default: 128]
-  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]
 ```
 
 ## TODO
