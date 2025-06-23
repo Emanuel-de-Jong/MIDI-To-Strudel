@@ -30,6 +30,20 @@ def setup_logging():
 
 logger = setup_logging()
 
+def main():
+    args = parse_args()
+    mid = load_midi_file(args.midi)
+    tempo, bpm = get_tempo_and_bpm(mid)
+    events = collect_note_events(mid, tempo)
+    cycle_len = 60 / bpm * 4
+    result = build_track_output(events, cycle_len, bpm, args)
+
+    output_str = '\n'.join(result)
+    print(output_str)
+
+    with open('result.txt', 'w') as f:
+        f.write(output_str + '\n')
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--midi', type=str, help='Path to the Midi file. (default: Uses first .mid in folder)')
@@ -44,13 +58,6 @@ def parse_args():
     print()
 
     return args
-
-def get_indent(tab_size, tabs=1):
-    return ' ' * (tab_size * tabs)
-
-NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
-def note_num_to_str(n):
-    return NOTE_NAMES[n % 12].lower() + str(n // 12 - 1)
 
 def load_midi_file(midi_path):
     if midi_path:
@@ -75,21 +82,6 @@ def get_tempo_and_bpm(mid):
     bpm = mido.tempo2bpm(tempo)
     return tempo, bpm
 
-def quantize_time(timestamp, cycle_start, cycle_len, notes_per_bar):
-    pos = (timestamp - cycle_start) / cycle_len
-    return round(pos * notes_per_bar) / notes_per_bar
-
-def simplify_subdivisions(subdivs):
-    current = subdivs
-    while len(current) % 2 == 0:
-        pairs = list(zip(current[::2], current[1::2]))
-        if any(b != '-' for _, b in pairs):
-            break
-
-        current = [a for a, _ in pairs]
-    
-    return current
-
 def collect_note_events(mid, tempo):
     events = defaultdict(list)
     for i, track in enumerate(mid.tracks):
@@ -99,6 +91,39 @@ def collect_note_events(mid, tempo):
             if msg.type == 'note_on' and msg.velocity > 0:
                 events[i].append((time_sec, note_num_to_str(msg.note)))
     return events
+
+NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+def note_num_to_str(n):
+    return NOTE_NAMES[n % 12].lower() + str(n // 12 - 1)
+
+def build_track_output(events, cycle_len, bpm, args):
+    output = [f"setcpm({int(bpm)}/4)\n"]
+
+    for track in sorted(events):
+        evs = adjust_near_cycle_end(events[track], cycle_len)
+        if not evs:
+            continue
+
+        max_time = max(t for t, _ in evs)
+        num_cycles = min((int(max_time / cycle_len) + 1), args.bar_limit if args.bar_limit > 0 else float('inf'))
+        bars = []
+
+        for c in range(num_cycles):
+            start = c * cycle_len
+            end = start + cycle_len
+            notes_in_cycle = [(t, n) for t, n in evs if start <= t < end]
+
+            if not notes_in_cycle:
+                bars.append('-')
+                continue
+
+            bar = flat_mode_output(notes_in_cycle) if args.flat_sequences \
+                else poly_mode_output(notes_in_cycle, start, cycle_len, args.notes_per_bar)
+            bars.append(bar)
+
+        add_bars_to_output(output, bars, args.tab_size)
+
+    return output
 
 def adjust_near_cycle_end(events, cycle_len):
     adjusted = []
@@ -142,34 +167,20 @@ def poly_mode_output(events, cycle_start, cycle_len, notes_per_bar):
     simplified = simplify_subdivisions(subdivisions)
     return simplified[0] if len(simplified) == 1 else f"[{' '.join(simplified)}]"
 
-def build_track_output(events, cycle_len, bpm, args):
-    output = [f"setcpm({int(bpm)}/4)\n"]
+def quantize_time(timestamp, cycle_start, cycle_len, notes_per_bar):
+    pos = (timestamp - cycle_start) / cycle_len
+    return round(pos * notes_per_bar) / notes_per_bar
 
-    for track in sorted(events):
-        evs = adjust_near_cycle_end(events[track], cycle_len)
-        if not evs:
-            continue
+def simplify_subdivisions(subdivs):
+    current = subdivs
+    while len(current) % 2 == 0:
+        pairs = list(zip(current[::2], current[1::2]))
+        if any(b != '-' for _, b in pairs):
+            break
 
-        max_time = max(t for t, _ in evs)
-        num_cycles = min((int(max_time / cycle_len) + 1), args.bar_limit if args.bar_limit > 0 else float('inf'))
-        bars = []
-
-        for c in range(num_cycles):
-            start = c * cycle_len
-            end = start + cycle_len
-            notes_in_cycle = [(t, n) for t, n in evs if start <= t < end]
-
-            if not notes_in_cycle:
-                bars.append('-')
-                continue
-
-            bar = flat_mode_output(notes_in_cycle) if args.flat_sequences \
-                else poly_mode_output(notes_in_cycle, start, cycle_len, args.notes_per_bar)
-            bars.append(bar)
-
-        add_bars_to_output(output, bars, args.tab_size)
-
-    return output
+        current = [a for a, _ in pairs]
+    
+    return current
 
 def add_bars_to_output(output, bars, tab_size):
     if not bars:
@@ -182,19 +193,8 @@ def add_bars_to_output(output, bars, tab_size):
         output.append(f"{get_indent(tab_size, 2)}{line}")
     output.append(f'{get_indent(tab_size)}>`).sound("piano")\n')
 
-def main():
-    args = parse_args()
-    mid = load_midi_file(args.midi)
-    tempo, bpm = get_tempo_and_bpm(mid)
-    events = collect_note_events(mid, tempo)
-    cycle_len = 60 / bpm * 4
-    result = build_track_output(events, cycle_len, bpm, args)
-
-    output_str = '\n'.join(result)
-    print(output_str)
-
-    with open('result.txt', 'w') as f:
-        f.write(output_str + '\n')
+def get_indent(tab_size, tabs=1):
+    return ' ' * (tab_size * tabs)
 
 if __name__ == '__main__':
     try:
