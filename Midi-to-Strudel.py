@@ -82,32 +82,27 @@ def quantize_time(timestamp, cycle_start, cycle_len):
     return round(pos * args.notes_per_bar) / args.notes_per_bar
 
 def simplify_subdivisions(subdivs):
-    def is_simplifiable(subs, target_len):
-        if len(subs) % target_len != 0:
-            return False
-        
-        step = len(subs) // target_len
+    current = subdivs[:]
+    n = len(current)
+    target_lengths = [n // (2 ** i) for i in range(n.bit_length()) if n % (2 ** i) == 0]
+    for target_len in target_lengths:
+        step = len(current) // target_len
+        valid = True
         for i in range(target_len):
-            chunk = subs[i * step:(i + 1) * step]
+            chunk = current[i * step:(i + 1) * step]
             notes = [x for x in chunk if x != '-']
             if len(notes) > 1 or (notes and chunk.index(notes[0]) != 0):
-                return False
-        return True
+                valid = False
+                break
 
-    def reduce_subdivs(subs, target_len):
-        step = len(subs) // target_len
-        return [
-            next((x for x in subs[i * step:(i + 1) * step] if x != '-'), '-')
+        if not valid:
+            break
+
+        current = [
+            next((x for x in current[i * step:(i + 1) * step] if x != '-'), '-')
             for i in range(target_len)
         ]
 
-    current = subdivs[:]
-    target_lengths = [args.notes_per_bar // (2**i) for i in range(args.notes_per_bar.bit_length())]
-    for target_len in target_lengths:
-        if is_simplifiable(current, target_len):
-            current = reduce_subdivs(current, target_len)
-        else:
-            break
     return current
 
 def collect_note_events(mid, tempo):
@@ -189,16 +184,10 @@ def build_track_output(events, cycle_len, bpm):
         if bars:
             output.append('$: note(`<')
 
-            bar_group = []
-            for i in range(len(bars)):
-                if len(bar_group) == 0:
-                    bar_group.append(bars[i])
-                else:
-                    bar_group.append(f' {bars[i]}')
-                
-                if len(bar_group) > 3 or i == len(bars) - 1:
-                    output.append(f"{get_indent(2)}{''.join(bar_group)}")
-                    bar_group = []
+            for i in range(0, len(bars), 4):
+                chunk = bars[i:i+4]
+                line = ' '.join(chunk)
+                output.append(f"{get_indent(2)}{line}")
 
             output.append(f'{get_indent()}>`).sound("piano")\n')
 
