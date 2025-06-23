@@ -1,9 +1,9 @@
-import argparse
 from collections import defaultdict
+import argparse
 import glob
-import mido
-import os
 import sys
+import os
+import mido
 
 NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 
@@ -210,4 +210,16 @@ def main():
         f.write(output_str + '\n')
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        from datetime import datetime
+
+        timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+        with open('error.log', 'a') as f:
+            f.write(f"{timestamp}[Error]: {traceback.format_exc()}")
+
+        print(f"An error occurred: {traceback.format_exc()}")
+
+        sys.exit(1)
