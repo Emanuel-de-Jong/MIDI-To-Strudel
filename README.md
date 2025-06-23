@@ -36,7 +36,7 @@ $: note(`<
   -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]
   -f, --flat-sequences  No complex timing or chords. [default: off]
   -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]
-  -r, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).
+  -n, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).
                         Higher is more error proof but too high can break the code. [default: 128]
 ```
 

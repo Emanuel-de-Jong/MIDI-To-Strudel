@@ -14,7 +14,7 @@ def print_usage():
         "  -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]",
         "  -f, --flat-sequences  No complex timing or chords. [default: off]",
         "  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]",
-        "  -r, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).",
+        "  -n, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).",
         "                        Higher is more error proof but too high can break the code. [default: 128]",
         ""
     ]
@@ -28,7 +28,7 @@ def parse_args():
     parser.add_argument('-b', '--bar-limit', type=int, default=0)
     parser.add_argument('-f', '--flat-sequences', action='store_true')
     parser.add_argument('-t', '--tab-size', type=int, default=2)
-    parser.add_argument('-r', '--notes-per-bar', type=int, default=128)
+    parser.add_argument('-n', '--notes-per-bar', type=int, default=128)
     return parser.parse_args()
 
 args = parse_args()
