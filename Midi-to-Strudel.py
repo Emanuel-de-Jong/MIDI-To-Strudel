@@ -1,5 +1,6 @@
 from collections import defaultdict
 import argparse
+import logging
 import glob
 import sys
 import os
@@ -7,29 +8,43 @@ import mido
 
 NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 
-def print_usage():
-    usage_lines = [
-        "Usage options:",
-        "  -m, --midi            Path to the Midi file. [default: Uses first .mid in folder]",
-        "  -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]",
-        "  -f, --flat-sequences  No complex timing or chords. [default: off]",
-        "  -t, --tab-size        How many spaces to use for indentation in the output. [default: 2]",
-        "  -n, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).",
-        "                        Higher is more error proof but too high can break the code. [default: 128]",
-        ""
-    ]
-    print('\n'.join(usage_lines))
+def setup_logging():
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
-print_usage()
+    file_handler = logging.FileHandler("log.log", encoding="utf-8", mode="a")
+    file_handler.setFormatter(logging.Formatter(
+        "[{asctime}][{levelname}]: {message}",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        style="{"
+    ))
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter(
+        "[{levelname}]: {message}",
+        style="{"
+    ))
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+    return logger
+
+logger = setup_logging()
 
 def parse_args():
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-m', '--midi', type=str)
-    parser.add_argument('-b', '--bar-limit', type=int, default=0)
-    parser.add_argument('-f', '--flat-sequences', action='store_true')
-    parser.add_argument('-t', '--tab-size', type=int, default=2)
-    parser.add_argument('-n', '--notes-per-bar', type=int, default=128)
-    return parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--midi', type=str, help='Path to the Midi file. (default: Uses first .mid in folder)')
+    parser.add_argument('-b', '--bar-limit', type=int, default=0, help='The amount of bars to convert. 0 means no limit. (default: %(default)s)')
+    parser.add_argument('-f', '--flat-sequences', action='store_true', help='No complex timing or chords. (default: off)')
+    parser.add_argument('-t', '--tab-size', type=int, default=2, help='How many spaces to use for indentation in the output. (default: %(default)s)')
+    parser.add_argument('-n', '--notes-per-bar', type=int, default=128, help='The resolution. Usually in steps of 4 (4, 8, 16...).' \
+        ' Higher is more error proof but too high can break the code. (default: %(default)s)')
+
+    args = parser.parse_args()
+    parser.print_help()
+    print()
+
+    return args
 
 args = parse_args()
 
@@ -62,16 +77,6 @@ def get_tempo_and_bpm(mid):
     bpm = mido.tempo2bpm(tempo)
     return tempo, bpm
 
-def build_target_lengths():
-    lengths = []
-    n = args.notes_per_bar
-    while n >= 1:
-        lengths.append(n)
-        n //= 2
-    return lengths
-
-TARGET_LENGTHS = build_target_lengths()
-
 def quantize_time(timestamp, cycle_start, cycle_len):
     pos = (timestamp - cycle_start) / cycle_len
     return round(pos * args.notes_per_bar) / args.notes_per_bar
@@ -97,7 +102,8 @@ def simplify_subdivisions(subdivs):
         ]
 
     current = subdivs[:]
-    for target_len in TARGET_LENGTHS:
+    target_lengths = [args.notes_per_bar // (2**i) for i in range(args.notes_per_bar.bit_length())]
+    for target_len in target_lengths:
         if is_simplifiable(current, target_len):
             current = reduce_subdivs(current, target_len)
         else:
@@ -215,13 +221,5 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        from datetime import datetime
-        import traceback
-
-        timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
-        with open('error.log', 'a') as f:
-            f.write(f"{timestamp}[Error]: {traceback.format_exc()}")
-
-        print(f"An error occurred: {traceback.format_exc()}")
-
+        logger.error(e, exc_info=True)
         sys.exit(1)
