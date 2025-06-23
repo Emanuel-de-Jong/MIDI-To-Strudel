@@ -119,7 +119,7 @@ def build_tracks(events, cycle_len, args):
                 else get_poly_mode_bar(notes_in_cycle, start, cycle_len, args.notes_per_bar)
             bars.append(bar)
 
-        if bars and len(bars) > 0:
+        if bars:
             tracks.append(bars)
 
     return tracks
@@ -167,17 +167,18 @@ def get_poly_mode_bar(events, cycle_start, cycle_len, notes_per_bar):
     return simplified[0] if len(simplified) == 1 else f"[{' '.join(simplified)}]"
 
 def quantize_time(timestamp, cycle_start, cycle_len, notes_per_bar):
-    pos = (timestamp - cycle_start) / cycle_len
-    return round(pos * notes_per_bar) / notes_per_bar
+    rel_time = (timestamp - cycle_start) / cycle_len
+    quantized = round(rel_time * notes_per_bar) / notes_per_bar
+    return min(quantized, 1.0 - 1e-9)
 
 def simplify_subdivisions(subdivs):
     current = subdivs
     while len(current) % 2 == 0:
         pairs = list(zip(current[::2], current[1::2]))
-        if any(b != '-' for _, b in pairs):
+        if any(second != '-' for _, second in pairs):
             break
 
-        current = [a for a, _ in pairs]
+        current = [first for first, _ in pairs]
     
     return current
 
@@ -188,8 +189,7 @@ def build_output(tracks, bpm, tab_size):
         output.append('$: note(`<')
         for i in range(0, len(bars), 4):
             chunk = bars[i:i+4]
-            line = ' '.join(chunk)
-            output.append(f"{get_indent(tab_size, 2)}{line}")
+            output.append(f"{get_indent(tab_size, 2)}{' '.join(chunk)}")
         output.append(f'{get_indent(tab_size)}>`).sound("piano")\n')
     
     return '\n'.join(output)
