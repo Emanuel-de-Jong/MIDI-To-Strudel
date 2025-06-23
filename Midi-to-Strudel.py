@@ -48,8 +48,8 @@ def parse_args():
     parser.add_argument('-b', '--bar-limit', type=int, default=0, help='The amount of bars to convert. 0 means no limit. (default: %(default)s)')
     parser.add_argument('-f', '--flat-sequences', action='store_true', help='No complex timing or chords. (default: off)')
     parser.add_argument('-t', '--tab-size', type=int, default=2, help='How many spaces to use for indentation in the output. (default: %(default)s)')
-    parser.add_argument('-n', '--notes-per-bar', type=int, default=128, help='The resolution. Usually in steps of 4 (4, 8, 16...).' \
-        ' Higher is more error proof but too high can break the code. (default: %(default)s)')
+    parser.add_argument('-n', '--notes-per-bar', type=int, default=64, help='The resolution. Usually in steps of 4 (4, 8, 16...).' \
+        ' Higher gives better note placement but can get big. (default: %(default)s)')
 
     args = parser.parse_args()
     parser.print_help()
@@ -119,7 +119,7 @@ def build_tracks(events, cycle_len, args):
                 else get_poly_mode_bar(notes_in_cycle, start, cycle_len, args.notes_per_bar)
             bars.append(bar)
 
-        if bars and len(bars) > 1:
+        if bars and len(bars) > 0:
             tracks.append(bars)
 
     return tracks
