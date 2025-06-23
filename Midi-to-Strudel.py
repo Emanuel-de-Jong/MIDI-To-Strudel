@@ -2,6 +2,7 @@ from collections import defaultdict
 import argparse
 import logging
 import glob
+import math
 import sys
 import os
 import mido
@@ -79,37 +80,24 @@ def quantize_time(timestamp, cycle_start, cycle_len, notes_per_bar):
     return round(pos * notes_per_bar) / notes_per_bar
 
 def simplify_subdivisions(subdivs):
-    current = subdivs[:]
-    n = len(current)
-    target_lengths = [n // (2 ** i) for i in range(n.bit_length()) if n % (2 ** i) == 0]
-    for target_len in target_lengths:
-        step = len(current) // target_len
-        valid = True
-        for i in range(target_len):
-            chunk = current[i * step:(i + 1) * step]
-            notes = [x for x in chunk if x != '-']
-            if len(notes) > 1 or (notes and chunk.index(notes[0]) != 0):
-                valid = False
-                break
-
-        if not valid:
+    current = subdivs
+    while len(current) % 2 == 0:
+        pairs = list(zip(current[::2], current[1::2]))
+        if any(b != '-' for _, b in pairs):
             break
 
-        current = [
-            next((x for x in current[i * step:(i + 1) * step] if x != '-'), '-')
-            for i in range(target_len)
-        ]
-
+        current = [a for a, _ in pairs]
+    
     return current
 
 def collect_note_events(mid, tempo):
-    events = {}
-    for idx, track in enumerate(mid.tracks):
+    events = defaultdict(list)
+    for i, track in enumerate(mid.tracks):
         time_sec = 0
         for msg in track:
             time_sec += mido.tick2second(msg.time, mid.ticks_per_beat, tempo)
             if msg.type == 'note_on' and msg.velocity > 0:
-                events.setdefault(idx, []).append((time_sec, note_num_to_str(msg.note)))
+                events[i].append((time_sec, note_num_to_str(msg.note)))
     return events
 
 def adjust_near_cycle_end(events, cycle_len):
@@ -117,7 +105,7 @@ def adjust_near_cycle_end(events, cycle_len):
     for t, note in events:
         rel = (t % cycle_len) / cycle_len
         if rel > 0.95:
-            adjusted.append((((t // cycle_len) + 1) * cycle_len, note))
+            adjusted.append((math.ceil(t / cycle_len) * cycle_len, note))
         else:
             adjusted.append((t, note))
     return adjusted
@@ -143,10 +131,10 @@ def poly_mode_output(events, cycle_start, cycle_len, notes_per_bar):
 
     subdivisions = ['-'] * notes_per_bar
     for pos in sorted(time_groups):
-        idx = int(round(pos * notes_per_bar))
-        if idx < notes_per_bar:
+        i = int(round(pos * notes_per_bar))
+        if i < notes_per_bar:
             group = time_groups[pos]
-            subdivisions[idx] = group[0] if len(group) == 1 else f"[{','.join(group)}]"
+            subdivisions[i] = group[0] if len(group) == 1 else f"[{','.join(group)}]"
 
     if all(x == '-' for x in subdivisions):
         return '-'
@@ -179,17 +167,20 @@ def build_track_output(events, cycle_len, bpm, args):
                 else poly_mode_output(notes_in_cycle, start, cycle_len, args.notes_per_bar)
             bars.append(bar)
 
-        if bars:
-            output.append('$: note(`<')
-
-            for i in range(0, len(bars), 4):
-                chunk = bars[i:i+4]
-                line = ' '.join(chunk)
-                output.append(f"{get_indent(args.tab_size, 2)}{line}")
-
-            output.append(f'{get_indent(args.tab_size)}>`).sound("piano")\n')
+        add_bars_to_output(output, bars, args.tab_size)
 
     return output
+
+def add_bars_to_output(output, bars, tab_size):
+    if not bars:
+        return
+    
+    output.append('$: note(`<')
+    for i in range(0, len(bars), 4):
+        chunk = bars[i:i+4]
+        line = ' '.join(chunk)
+        output.append(f"{get_indent(tab_size, 2)}{line}")
+    output.append(f'{get_indent(tab_size)}>`).sound("piano")\n')
 
 def main():
     args = parse_args()
