@@ -19,9 +19,6 @@ $: note(`<
 
 > **Important:** Only 4/4 time signature is supported for now! PRs are welcome.
 
-### Showcase
-[![](https://live.staticflickr.com/8149/29795017326_528a42f287_b.jpg)](https://youtu.be/m62j68oP5l0)
-
 ## Requirements
 - python: I use 3.11.9 but most versions will work
 - mido
