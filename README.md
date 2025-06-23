@@ -17,13 +17,23 @@ $: note(`<
   >`).sound("piano")
 ```
 
-> Important to note is that it only supports 4/4 for now! PRs are welcome.
+> **Important:** Only 4/4 time signature is supported for now! PRs are welcome.
+
+### Showcase
+[](https://youtu.be/m62j68oP5l0)
 
 ## Requirements
 - python: I use 3.11.9 but most versions will work
 - mido
 
 ## Usage
+1. Run `pip install -r requirements.txt` to install the dependencies.
+2. There are two ways to run the tool:
+    1. If you're on Windows, the easiest way is dragging your Midi file onto the `Drag-and-Drop.bat` script. However, this way you can't set console arguments.
+    2. Run the tool directly with `python Midi-to-Strudel.py`.
+3. Get the Strudel code. Either from the text in the console or the content of the new `result.txt` file.
+
+### Arguments
 ```
   -m, --midi            Path to the Midi file. [default: Uses first .mid in folder]
   -b, --bar-limit       The amount of bars to convert. 0 means no limit. [default: 0]
