@@ -190,7 +190,7 @@ def build_output(tracks, bpm, tab_size):
         for i in range(0, len(bars), 4):
             chunk = bars[i:i+4]
             output.append(f"{get_indent(tab_size, 2)}{' '.join(chunk)}")
-        output.append(f'{get_indent(tab_size)}>`).sound("piano")\n')
+        output[len(output) - 1] += '>`)\n'
     
     return '\n'.join(output)
 
