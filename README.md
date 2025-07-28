@@ -1,4 +1,4 @@
-# Midi-to-Strudel
+# Midi To Strudel
 
 A python script that converts a Midi file to Strudel code. For artists that like remixing :).
 
