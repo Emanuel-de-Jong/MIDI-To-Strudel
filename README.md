@@ -1,4 +1,4 @@
-# Midi To Strudel
+# MIDI To Strudel
 A python script that converts a Midi file to Strudel code. For artists that like remixing.
 
 It sets the right cpm and creates a new sound source per Midi track. Example output:
