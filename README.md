@@ -1,5 +1,4 @@
 # Midi To Strudel
-
 A python script that converts a Midi file to Strudel code. For artists that like remixing :).
 
 It sets the right cpm and creates a new sound source per Midi track. Example output:
@@ -17,7 +16,15 @@ $: note(`<
   >`).sound("piano")
 ```
 
-> **Important:** Only 4/4 time signature is supported for now! PRs are welcome.
+> [!NOTE]
+> Only 4/4 time signature is supported for now! PRs are welcome.
+
+**Active Development:** <br>
+**Last Change:** <br>
+
+| | |
+| :---: | :---: |
+| ![](/Screenshots/.png) | ![](/Screenshots/.png) |
 
 ## Requirements
 - python: I use 3.11.9 but most versions will work
