@@ -19,8 +19,8 @@ $: note(`<
 > [!NOTE]
 > Only 4/4 time signature is supported for now! PRs are welcome.
 
-**Active Development:** <br>
-**Last Change:** <br>
+**Active Development:** 2025-06-23 - 2025-06-23<br>
+**Last Change:** 2025-06-27<br>
 
 | | |
 | :---: | :---: |
