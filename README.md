@@ -51,3 +51,4 @@ usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n N
 ## TODO
 - Support more starting time signatures than only 4/4.
 - Support mid-song time signature switches.
+ 
