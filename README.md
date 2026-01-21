@@ -1,8 +1,7 @@
 # MIDI To Strudel 
 
-> You can try the web version here - https://github.com/rayanfer32/midi-to-strudel-web
-
-Read more about webapp - [README.web](/README.web.md)
+> You can try the web version here: https://rayanfer32.github.io/midi-to-strudel-web/ <br>
+> Read more about the webapp: [README.web](/README.web.md)
 
 A python script that converts a Midi file to Strudel code. For artists that like remixing.
 
@@ -24,16 +23,16 @@ $: note(`<
 > [!NOTE]
 > Only 4/4 time signature is supported for now! PRs are welcome.
 
-**Active Development:** 2025-06-23 - 2025-06-23<br>
-**Last Change:** 2025-06-27<br>
+**Active Development:** 2025-06-23 - 2025-06-24<br>
+**Last Change:** 2026-01-21<br>
 
 | | |
 | :---: | :---: |
-| ![](/Screenshots/.png) | ![](/Screenshots/.png) |
+| ![](/screenshots/1-Webapp.png) | ![](/screenshots/2-Drag_and_Drop.png) |
 
 ## Requirements
-- python: I use 3.11.9 but most versions will work
-- mido
+- python (I use 3.11.9 but most versions will work)
+- mido (in `requirements.txt`)
 
 ## Usage
 1. Run `pip install -r requirements.txt` to install the dependencies.
@@ -56,4 +55,6 @@ usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n N
 ## TODO
 - Support more starting time signatures than only 4/4.
 - Support mid-song time signature switches.
- 
+
+## Contributors
+- [rayanfer32](https://github.com/rayanfer32) (Created the web version)
