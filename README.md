@@ -1,5 +1,4 @@
-# MIDI To Strudel 
-
+# MIDI To Strudel
 > You can try the web version here: https://rayanfer32.github.io/midi-to-strudel-web/ <br>
 > Read more about the webapp: [README.web](/README.web.md)
 
