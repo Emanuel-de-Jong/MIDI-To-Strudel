@@ -39,7 +39,7 @@ def main():
     output = build_output(tracks, bpm, args.tab_size)
 
     print(output)
-    with open('result.txt', 'w') as f:
+    with open('result.txt', 'w', encoding='utf-8') as f:
         f.write(output + '\n')
 
 def parse_args():
@@ -64,7 +64,7 @@ def load_midi_file(midi_path):
             sys.exit(1)
         return mido.MidiFile(midi_path)
     
-    midi_files = glob.glob("*.mid")
+    midi_files = glob.glob("*.mid") + glob.glob("*.midi")
     if not midi_files:
         print("No MIDI files found")
         sys.exit(1)
@@ -119,7 +119,7 @@ def build_tracks(events, cycle_len, args):
                 else get_poly_mode_bar(notes_in_cycle, start, cycle_len, args.notes_per_bar)
             bars.append(bar)
 
-        if bars:
+        if bars and any(bar != '-' for bar in bars):
             tracks.append(bars)
 
     return tracks
@@ -135,8 +135,7 @@ def adjust_near_cycle_end(events, cycle_len):
     return adjusted
 
 def get_flat_mode_bar(events):
-    events.sort()
-    notes = [n for _, n in events]
+    notes = [n for _, n in sorted(events)]
     return notes[0] if len(notes) == 1 else f"[{' '.join(notes)}]"
 
 def get_poly_mode_bar(events, cycle_start, cycle_len, notes_per_bar):
