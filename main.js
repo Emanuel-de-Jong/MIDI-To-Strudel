@@ -1,18 +1,6 @@
 /* ---------- helpers ---------- */
 const NOTE_NAMES = [
-  "c",
-  "c#",
-  "d",
-  "d#",
-  "e",
-  "f",
-  "f#",
-  "g",
-  "g#",
-  "a",
-  "a#",
-  "b"
-];
+  "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"];
 
 const gmInstruments = [
   "gm_piano",
@@ -157,6 +145,7 @@ function simplifySubdivisions(arr) {
   while (cur.length % 2 === 0) {
     const ok = cur.every((_, i) => (i % 2 === 1 ? cur[i] === "-" : true));
     if (!ok) break;
+
     cur = cur.filter((_, i) => i % 2 === 0);
   }
   return cur;
@@ -174,6 +163,7 @@ function midiToStrudel(arrayBuffer, opts) {
   const events = {}; // trackIndex -> [{time,note},...]
   midi.tracks.forEach((track, idx) => {
     if (!track.notes.length) return;
+
     events[idx] = track.notes.map((n) => ({
       time: n.time,
       note: noteNumToStr(n.midi),
@@ -194,6 +184,7 @@ function midiToStrudel(arrayBuffer, opts) {
           ? { ...e, time: Math.ceil(e.time / cycleLen) * cycleLen }
           : e;
       });
+
       const maxT = Math.max(...adj.map((e) => e.time));
       const numCycles =
         opts.barLimit > 0
@@ -219,6 +210,7 @@ function midiToStrudel(arrayBuffer, opts) {
             const key = Math.round(pos * opts.notesPerBar) / opts.notesPerBar;
             (groups[key] || (groups[key] = [])).push(e.note);
           });
+
           const subdiv = Array(opts.notesPerBar).fill("-");
           Object.keys(groups)
             .sort((a, b) => a - b)
@@ -229,6 +221,7 @@ function midiToStrudel(arrayBuffer, opts) {
                 subdiv[idx] = g.length === 1 ? g[0] : `[${g.join(",")}]`;
               }
             });
+
           const simp = simplifySubdivisions(subdiv);
           const bar = simp.length === 1 ? simp[0] : `[${simp.join(" ")}]`;
           bars.push(
@@ -238,7 +231,10 @@ function midiToStrudel(arrayBuffer, opts) {
           );
         }
       }
-      if (bars.length) tracks.push(bars);
+
+      if (bars.length && bars.some((b) => b !== "-")){
+        tracks.push(bars);
+      }
     });
 
   /* build text */
@@ -256,10 +252,11 @@ function midiToStrudel(arrayBuffer, opts) {
       const chunk = bars.slice(i, i + 4).join(" ");
       out.push(`${indent(opts.tabSize * 2)}${chunk}`);
     }
+
     out[out.length - 1] += ">`)";
-    let _track = midi.tracks[idx];
-    console.log("_track@", _track);
-    out.push(`.sound("${getInstrumentName(_track)}")`);
+    let track = midi.tracks[idx];
+    console.log("track@", track);
+    out.push(`.sound("${getInstrumentName(track)}")`);
     out.push("");
   });
   return out.join("\n");
@@ -274,6 +271,7 @@ function run(file) {
     flat: $("#flat").checked,
     tabSize: parseInt($("#tabSize").value) || 2
   };
+
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
@@ -289,6 +287,7 @@ function run(file) {
 $("#openBtn").addEventListener("click", () => {
   const txt = $("#output").value;
   if (!txt) return;
+
   const b64 = btoa(unescape(encodeURIComponent(txt)));
   window.open("https://strudel.cc/#" + b64, "_blank");
 });
@@ -307,10 +306,11 @@ $("#convertBtn").addEventListener("click", () => {
     $("#openBtn").classList.add("hidden");
   }
 });
+
 /* drag & drop */
-["dragenter", "dragover", "drop"].forEach((ev) =>
+["dragenter", "dragover", "drop"].forEach((eventType) =>
   window.addEventListener(
-    ev,
+    eventType,
     (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -318,14 +318,13 @@ $("#convertBtn").addEventListener("click", () => {
     false
   )
 );
-window.addEventListener(
-  "drop",
-  (e) => {
-    const f = [...e.dataTransfer.files].find((x) => /\.mid$/i.test(x.name));
-    if (f) {
-      $("#file").files = e.dataTransfer.files;
-      run(f);
-    }
-  },
-  false
-);
+
+function handleFileSelect(e) {
+  const file = [...e.dataTransfer.files].find((x) => /\.(mid|midi)$/i.test(x.name));
+  if (file) {
+    $("#file").files = e.dataTransfer.files;
+    run(file);
+  }
+}
+
+window.addEventListener("drop", handleFileSelect, false);

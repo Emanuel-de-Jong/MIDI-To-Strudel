@@ -91,7 +91,8 @@ def collect_note_events(mid, tempo):
                 events[i].append((time_sec, note_num_to_str(msg.note)))
     return events
 
-NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+NOTE_NAMES = [
+    'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b']
 def note_num_to_str(n):
     return NOTE_NAMES[n % 12].lower() + str(n // 12 - 1)
 
@@ -189,7 +190,9 @@ def build_output(tracks, bpm, tab_size):
         for i in range(0, len(bars), 4):
             chunk = bars[i:i+4]
             output.append(f"{get_indent(tab_size, 2)}{' '.join(chunk)}")
-        output[len(output) - 1] += '>`)\n'
+        
+        output[len(output) - 1] += '>`)'
+        output.append(f"{get_indent(tab_size, 1)}.sound(\"piano\")\n")
     
     return '\n'.join(output)
 

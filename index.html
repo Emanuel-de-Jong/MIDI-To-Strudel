@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>MIDI → Strudel (browser)</title>
+    <title>MIDI → Strudel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- battle-tested, browser-native parser -->
     <script type="module">
@@ -19,25 +19,19 @@
     class="bg-gradient-to-tr from-slate-900 to-slate-800 text-gray-100 min-h-screen flex items-center justify-center"
   >
     <main class="w-full max-w-4xl p-6">
-      <h1 class="text-2xl font-bold mb-4">MIDI → Strudel converter</h1>
+      <h1 class="text-2xl font-bold mb-4">MIDI → Strudel v0.4</h1>
 
       <label class="block mb-4">
         <span class="text-sm opacity-80"
-          >Drop a <code>.mid</code> file anywhere in the window</span
+          >Drop a midi file anywhere in the window</span
         >
+
         <input
           id="file"
           type="file"
           accept=".mid,.midi"
           class="mt-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
         />
-        <button
-          id="convertBtn"
-          type="button"
-          class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded font-semibold"
-        >
-          Convert
-        </button>
       </label>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -53,6 +47,7 @@
               class="ml-2 w-20 px-2 py-1 rounded bg-gray-800"
             />
           </label>
+
           <label class="block text-sm mt-2"
             >Notes per bar
             <input
@@ -63,10 +58,12 @@
               class="ml-2 w-20 px-2 py-1 rounded bg-gray-800"
             />
           </label>
+
           <label class="block text-sm mt-2">
             <input id="flat" type="checkbox" class="mr-2" />Flat sequences (no
             chords/timing)
           </label>
+
           <label class="block text-sm mt-2"
             >Indent spaces
             <input
@@ -80,16 +77,29 @@
           </label>
         </div>
       </div>
+
+      <div class="mt-4">
+        <button
+          id="convertBtn"
+          type="button"
+          class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold"
+        >
+          Convert
+        </button>
+      </div>
+
       <div class="mt-4">
         <h2 class="text-sm font-semibold opacity-80 mb-1">Result</h2>
+
         <textarea
           id="output"
           readonly
           class="w-full h-64 px-3 py-2 rounded bg-gray-700 font-mono text-sm"
         ></textarea>
+
         <button
           id="openBtn"
-          class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded hidden font-semibold"
+          class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full hidden font-semibold"
         >
           Open in Strudel
         </button>
