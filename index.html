@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>MIDI → Strudel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- battle-tested, browser-native parser -->
     <script type="module">
       import { Midi } from "https://cdn.skypack.dev/@tonejs/midi@2.0.27";
       window.Midi = Midi; // expose globally so our old-school script can use it
@@ -15,81 +14,78 @@
       }
     </style>
   </head>
+
   <body
-    class="bg-gradient-to-tr from-slate-900 to-slate-800 text-gray-100 min-h-screen flex items-center justify-center"
+    class="min-h-screen flex items-center justify-center bg-gradient-to-tr from-slate-900 to-slate-800 text-gray-100"
   >
-    <main class="w-full max-w-4xl p-6">
-      <h1 class="text-2xl font-bold mb-4">MIDI → Strudel v0.4</h1>
+    <main class="w-full max-w-4xl p-6 space-y-4">
+      <h1 class="text-2xl font-bold">MIDI → Strudel v0.4</h1>
 
-      <label class="block mb-4">
-        <span class="text-sm opacity-80"
-          >Drop a midi file anywhere in the window</span
-        >
-
+      <label class="block text-sm">
+        Drop a midi file anywhere in the window
         <input
           id="file"
           type="file"
           accept=".mid,.midi"
-          class="mt-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
+          class="mt-2 block w-full file:mr-4 file:px-4 file:py-2 file:rounded-full file:border-0 file:text-base file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
         />
       </label>
 
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <h2 class="text-sm font-semibold opacity-80 mb-1">Options</h2>
-          <label class="block text-sm"
-            >Bars limit
+      <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="space-y-2">
+          <h2 class="font-semibold opacity-80">Options</h2>
+
+          <label class="flex items-center gap-2">
+            Bars limit
             <input
               id="barLimit"
               type="number"
               min="0"
               value="0"
-              class="ml-2 w-20 px-2 py-1 rounded bg-gray-800"
+              class="w-20 px-2 py-1 rounded bg-gray-800"
             />
           </label>
 
-          <label class="block text-sm mt-2"
-            >Notes per bar
+          <label class="flex items-center gap-2">
+            Notes per bar
             <input
               id="notesPerBar"
               type="number"
               min="1"
               value="64"
-              class="ml-2 w-20 px-2 py-1 rounded bg-gray-800"
+              class="w-20 px-2 py-1 rounded bg-gray-800"
             />
           </label>
 
-          <label class="block text-sm mt-2">
-            <input id="flat" type="checkbox" class="mr-2" />Flat sequences (no
-            chords/timing)
+          <label class="flex items-center gap-2">
+            <input id="flat" type="checkbox" />
+            Flat sequences (no chords/timing)
           </label>
 
-          <label class="block text-sm mt-2"
-            >Indent spaces
+          <label class="flex items-center gap-2">
+            Indent spaces
             <input
               id="tabSize"
               type="number"
               min="1"
               max="8"
               value="2"
-              class="ml-2 w-16 px-2 py-1 rounded bg-gray-800"
+              class="w-16 px-2 py-1 rounded bg-gray-800"
             />
           </label>
         </div>
       </div>
 
-      <div class="mt-4">
-        <button
-          id="convertBtn"
-          type="button"
-          class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold"
-        >
-          Convert
-        </button>
-      </div>
+      <button
+        id="convertBtn"
+        type="button"
+        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold"
+      >
+        Convert
+      </button>
 
-      <div class="mt-4">
-        <h2 class="text-sm font-semibold opacity-80 mb-1">Result</h2>
+      <div class="space-y-2">
+        <h2 class="text-sm font-semibold opacity-80">Result</h2>
 
         <textarea
           id="output"
@@ -99,12 +95,13 @@
 
         <button
           id="openBtn"
-          class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full hidden font-semibold"
+          class="hidden px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold"
         >
           Open in Strudel
         </button>
       </div>
     </main>
+
+    <script src="main.js"></script>
   </body>
-  <script src="main.js"></script>
 </html>
