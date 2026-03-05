@@ -240,6 +240,19 @@ function midiToStrudel(arrayBuffer, opts) {
   /* build text */
   const indent = (n) => " ".repeat(n);
 
+  let longestBarLength = 0;
+  tracks.forEach((trackData) => {
+    trackData.bars.forEach((bar) => {
+      if (bar.length > longestBarLength) longestBarLength = bar.length;
+    });
+  });
+
+  let barsPerRow = 8;
+  if (longestBarLength > 0) {
+    const barsFit = Math.floor((160 + 1) / (longestBarLength + 1));
+    barsPerRow = Math.max(1, Math.min(8, barsFit));
+  }
+
   const out = [`setcpm(${Math.round(bpm)}/4)\n`];
   console.log("tracks@", tracks);
   tracks.forEach((trackData) => {
@@ -247,8 +260,8 @@ function midiToStrudel(arrayBuffer, opts) {
     const track = trackData.track;
 
     out.push("$: note(`<");
-    for (let i = 0; i < bars.length; i += 4) {
-      const chunk = bars.slice(i, i + 4).join(" ");
+    for (let i = 0; i < bars.length; i += barsPerRow) {
+      const chunk = bars.slice(i, i + barsPerRow).join(" ");
       out.push(`${indent(opts.tabSize * 2)}${chunk}`);
     }
 

@@ -321,16 +321,30 @@ def simplify_subdivisions(subdivs):
     
     return current
 
+def calculate_bars_per_row(tracks, max_chars=160, max_bars=8):
+    longest_bar = 0
+    for _, bars in tracks:
+        for bar in bars:
+            longest_bar = max(longest_bar, len(bar))
+
+    if longest_bar == 0:
+        return max_bars
+
+    bars_fit = (max_chars + 1) // (longest_bar + 1)
+    return max(1, min(max_bars, bars_fit))
+
+
 def build_output(tracks, bpm, instruments, args):
     output = [f"setcpm({int(bpm)}/4)\n"]
-    
+
+    bars_per_row = calculate_bars_per_row(tracks)
     for track_key, bars in tracks:
         output.append('$: note(`<')
-        for i in range(0, len(bars), 4):
-            chunk = bars[i:i+4]
+        for i in range(0, len(bars), bars_per_row):
+            chunk = bars[i:i + bars_per_row]
             output.append(f"{get_indent(args.tab_size, 2)}{' '.join(chunk)}")
         
-        output[len(output) - 1] += '>`)'
+        output[-1] += '>`)'
 
         sound_name = SOUND_FALLBACK
         if args.guess_instrument:
