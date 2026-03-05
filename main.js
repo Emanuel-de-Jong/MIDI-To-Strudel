@@ -241,10 +241,11 @@ function midiToStrudel(arrayBuffer, opts) {
   const indent = (n) => " ".repeat(n);
 
   const getInstrumentName = (track) => {
-    return track.instrument.family || "piano";
+    // return track.instrument.family || "piano";
+    return "piano";
   };
 
-  const out = [`setcpm(${Math.round(bpm)}/4)`];
+  const out = [`setcpm(${Math.round(bpm)}/4)\n`];
   console.log("tracks@", tracks);
   tracks.forEach((bars, idx) => {
     out.push("$: note(`<");
@@ -256,8 +257,7 @@ function midiToStrudel(arrayBuffer, opts) {
     out[out.length - 1] += ">`)";
     let track = midi.tracks[idx];
     console.log("track@", track);
-    out.push(`.sound("${getInstrumentName(track)}")`);
-    out.push("");
+    out.push(`${indent(opts.tabSize)}.sound("${getInstrumentName(track)}")\n`);
   });
   return out.join("\n");
 }
