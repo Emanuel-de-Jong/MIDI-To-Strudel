@@ -1,5 +1,5 @@
 # MIDI To Strudel (Web)
-> Free hosted webapp: https://rayanfer32.github.io/midi-to-strudel-web/
+> Free hosted webapp: https://emanuel-de-jong.github.io/MIDI-To-Strudel/
 
 A simple browser-based converter is included so you can try conversions without installing Python. The web UI accepts a MIDI file via drag & drop or file picker and shows the resulting Strudel code directly in the page.
 
@@ -9,13 +9,13 @@ setcpm(91/4)
 
 $: note(`<
     [g#4 c5 g4 g#4 f4 g4 d#4 d4] [- - - - - - - g#4] [- c5 g4 g#4 f4 g4 g#4 a#4] -
-    [- - f4 f4 g#4 g#4 f4 f4] [c5 c5 - c5 - g#4 - -] [a#4 a#4 - a#4 - g4 - -] [a#4 a#4 - a#4 - g#4 g4 f4]
-  >`).sound("piano")
+    [- - f4 f4 g#4 g#4 f4 f4] [c5 c5 - c5 - g#4 - -] [a#4 a#4 - a#4 - g4 - -] [a#4 a#4 - a#4 - g#4 g4 f4]>`)
+  .sound("piano")
 
 $: note(`<
     [- [g#3,c4] f3 [g#3,c4]] [a#3 [d4,f4] a#3 [d4,f4]] [f3 [g#3,c4] f3 [g#3,c4]] [a#3 [d4,f4] a#3 [d4,f4]]
-    [f3 [g#3,c4] f3 [g#3,c4]] [g#3 [c4,d#4] g#3 [c4,d#4]] [d#3 [g3,a#3] d#3 [g3,a#3]] [a#3 [d4,f4] a#3 [d4,f4]]
-  >`).sound("piano")
+    [f3 [g#3,c4] f3 [g#3,c4]] [g#3 [c4,d#4] g#3 [c4,d#4]] [d#3 [g3,a#3] d#3 [g3,a#3]] [a#3 [d4,f4] a#3 [d4,f4]]>`)
+  .sound("piano")
 ```
 
 Notes:

@@ -1,5 +1,5 @@
 # MIDI To Strudel
-> You can try the web version here: https://rayanfer32.github.io/midi-to-strudel-web/ <br>
+> You can try the web version here: https://emanuel-de-jong.github.io/MIDI-To-Strudel/ <br>
 > Read more about the webapp: [README.web](/README.web.md)
 
 A python script that converts a Midi file to Strudel code. For artists that like remixing.
@@ -10,20 +10,20 @@ setcpm(91/4)
 
 $: note(`<
     [g#4 c5 g4 g#4 f4 g4 d#4 d4] [- - - - - - - g#4] [- c5 g4 g#4 f4 g4 g#4 a#4] -
-    [- - f4 f4 g#4 g#4 f4 f4] [c5 c5 - c5 - g#4 - -] [a#4 a#4 - a#4 - g4 - -] [a#4 a#4 - a#4 - g#4 g4 f4]
-  >`).sound("piano")
+    [- - f4 f4 g#4 g#4 f4 f4] [c5 c5 - c5 - g#4 - -] [a#4 a#4 - a#4 - g4 - -] [a#4 a#4 - a#4 - g#4 g4 f4]>`)
+  .sound("piano")
 
 $: note(`<
     [- [g#3,c4] f3 [g#3,c4]] [a#3 [d4,f4] a#3 [d4,f4]] [f3 [g#3,c4] f3 [g#3,c4]] [a#3 [d4,f4] a#3 [d4,f4]]
-    [f3 [g#3,c4] f3 [g#3,c4]] [g#3 [c4,d#4] g#3 [c4,d#4]] [d#3 [g3,a#3] d#3 [g3,a#3]] [a#3 [d4,f4] a#3 [d4,f4]]
-  >`).sound("piano")
+    [f3 [g#3,c4] f3 [g#3,c4]] [g#3 [c4,d#4] g#3 [c4,d#4]] [d#3 [g3,a#3] d#3 [g3,a#3]] [a#3 [d4,f4] a#3 [d4,f4]]>`)
+  .sound("piano")
 ```
 
 > [!NOTE]
 > Only 4/4 time signature is supported for now! PRs are welcome.
 
-**Active Development:** 2025-06-23 - 2025-06-24<br>
-**Last Change:** 2026-01-21<br>
+**Active Development:** 2025-06-23 - 2026-03-05<br>
+**Last Change:** 2026-03-05<br>
 
 | | |
 | :---: | :---: |
@@ -43,12 +43,13 @@ $: note(`<
 ### Arguments
 ```
 usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n NOTES_PER_BAR]
-  -m, --midi            Path to the Midi file. (default: Uses first .mid in folder)
-  -b, --bar-limit       The amount of bars to convert. 0 means no limit. (default: 0)
-  -f, --flat-sequences  No complex timing or chords. (default: off)
-  -t, --tab-size        How many spaces to use for indentation in the output. (default: 2)
-  -n, --notes-per-bar   The resolution. Usually in steps of 4 (4, 8, 16...).
-                        Higher gives better note placement but can get big. (default: 64)
+  -m, --midi              Path to the Midi file. (default: Uses first .mid in folder)
+  -b, --bar-limit         The amount of bars to convert. 0 means no limit. (default: 0)
+  -n, --notes-per-bar     The resolution. Usually in steps of 4 (4, 8, 16...).
+                          Higher gives better note placement but can get big. (default: 64)
+  -t, --tab-size          How many spaces to use for indentation in the output. (default: 2)
+  -g, --guess-instrument  Use the sounds closest to the instruments mentioned in the MIDI. (default: off)
+  -f, --flat-sequences    No complex timing or chords. (default: off)
 ```
 
 ## TODO
@@ -56,4 +57,4 @@ usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n N
 - Support mid-song time signature switches.
 
 ## Contributors
-- [rayanfer32](https://github.com/rayanfer32) (Created the web version)
+- [rayanfer32](https://github.com/rayanfer32) (Created the web version up to v0.3)
