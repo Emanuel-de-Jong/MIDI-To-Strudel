@@ -7,6 +7,135 @@ import sys
 import os
 import mido
 
+NOTE_NAMES = [
+    'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b']
+
+STRUDEL_SOUNDS = [
+    "agogo","balafon","balafon_hard","balafon_soft","ballwhistle","belltree",
+    "bongo","bytebeat","cabasa","cajon","casio","clash","clash2","clave",
+    "clavisynth","conga","cowbell","dantranh","dantranh_tremolo",
+    "dantranh_vibrato","darbuka","didgeridoo","fingercymbal","flexatone",
+    "fmpiano","folkharp","framedrum","glockenspiel","gm_accordion",
+    "gm_acoustic_bass","gm_acoustic_guitar_nylon","gm_acoustic_guitar_steel",
+    "gm_agogo","gm_alto_sax","gm_applause","gm_bagpipe","gm_bandoneon",
+    "gm_banjo","gm_baritone_sax","gm_bassoon","gm_bird_tweet",
+    "gm_blown_bottle","gm_brass_section","gm_breath_noise","gm_celesta",
+    "gm_cello","gm_choir_aahs","gm_church_organ","gm_clarinet","gm_clavinet",
+    "gm_contrabass","gm_distortion_guitar","gm_drawbar_organ","gm_dulcimer",
+    "gm_electric_bass_finger","gm_electric_bass_pick","gm_electric_guitar_clean",
+    "gm_electric_guitar_jazz","gm_electric_guitar_muted","gm_english_horn",
+    "gm_epiano1","gm_epiano2","gm_fiddle","gm_flute","gm_french_horn",
+    "gm_fretless_bass","gm_fx_atmosphere","gm_fx_brightness","gm_fx_crystal",
+    "gm_fx_echoes","gm_fx_goblins","gm_fx_rain","gm_fx_sci_fi",
+    "gm_fx_soundtrack","gm_glockenspiel","gm_guitar_fret_noise",
+    "gm_guitar_harmonics","gm_gunshot","gm_harmonica","gm_harpsichord",
+    "gm_helicopter","gm_kalimba","gm_koto","gm_lead_1_square",
+    "gm_lead_2_sawtooth","gm_lead_3_calliope","gm_lead_4_chiff",
+    "gm_lead_5_charang","gm_lead_6_voice","gm_lead_7_fifths",
+    "gm_lead_8_bass_lead","gm_marimba","gm_melodic_tom","gm_music_box",
+    "gm_muted_trumpet","gm_oboe","gm_ocarina","gm_orchestra_hit",
+    "gm_orchestral_harp","gm_overdriven_guitar","gm_pad_bowed",
+    "gm_pad_choir","gm_pad_halo","gm_pad_metallic","gm_pad_new_age",
+    "gm_pad_poly","gm_pad_sweep","gm_pad_warm","gm_pan_flute",
+    "gm_percussive_organ","gm_piano","gm_piccolo","gm_pizzicato_strings",
+    "gm_recorder","gm_reed_organ","gm_reverse_cymbal","gm_rock_organ",
+    "gm_seashore","gm_shakuhachi","gm_shamisen","gm_shanai","gm_sitar",
+    "gm_slap_bass_1","gm_slap_bass_2","gm_soprano_sax","gm_steel_drums",
+    "gm_string_ensemble_1","gm_string_ensemble_2","gm_synth_bass_1",
+    "gm_synth_bass_2","gm_synth_brass_1","gm_synth_brass_2","gm_synth_choir",
+    "gm_synth_drum","gm_synth_strings_1","gm_synth_strings_2",
+    "gm_taiko_drum","gm_telephone","gm_tenor_sax","gm_timpani",
+    "gm_tinkle_bell","gm_tremolo_strings","gm_trombone","gm_trumpet",
+    "gm_tuba","gm_tubular_bells","gm_vibraphone","gm_viola","gm_violin",
+    "gm_voice_oohs","gm_whistle","gm_woodblock","gm_xylophone",
+    "gong","gong2","guiro","handbells","handchimes","harmonica",
+    "harmonica_soft","harmonica_vib","harp","kalimba","kalimba2","kalimba3",
+    "kalimba4","kalimba5","kawai","korgkrz_fx","krz_fx","marimba",
+    "marktrees","mc303_fx","mridangam_ardha","mridangam_chaapu",
+    "mridangam_dhi","mridangam_dhin","mridangam_dhum","mridangam_gumki",
+    "mridangam_ka","mridangam_ki","mridangam_na","mridangam_nam",
+    "mridangam_ta","mridangam_tha","mridangam_thom","ocarina",
+    "ocarina_small","ocarina_small_stacc","ocarina_vib","oceandrum",
+    "organ_4inch","organ_8inch","organ_full","piano","piano1",
+    "pipeorgan_loud","pipeorgan_loud_pedal","pipeorgan_quiet",
+    "pipeorgan_quiet_pedal","psaltery_bow","psaltery_pluck",
+    "psaltery_spiccato","pulse","recorder_alto_stacc","recorder_alto_sus",
+    "recorder_alto_vib","recorder_bass_stacc","recorder_bass_sus",
+    "recorder_bass_vib","recorder_soprano_stacc","recorder_soprano_sus",
+    "recorder_tenor_stacc","recorder_tenor_sus","recorder_tenor_vib",
+    "rolandmc303_fx","rx5_fx","saw","sawtooth","sax","sax_stacc","sax_vib",
+    "saxello","saxello_stacc","saxello_vib","shaker_large","shaker_small",
+    "sin","sine","sleighbells","slitdrum","sqr","square","steinway",
+    "strumstick","super64","super64_acc","super64_vib","supersaw",
+    "tambourine","tambourine2","tg33_fx","timpani","timpani_roll","timpani2",
+    "tri","triangle","triangles","tubularbells","tubularbells2",
+    "vibraphone","vibraphone_bowed","vibraphone_soft","vibraslap",
+    "woodblock","wt_digital","wt_digital_bad_day","wt_digital_basique",
+    "wt_digital_crickets","wt_digital_curses","wt_digital_echoes",
+    "wt_vgame","xylophone_hard_ff","xylophone_hard_pp",
+    "xylophone_medium_ff","xylophone_medium_pp","xylophone_soft_ff",
+    "xylophone_soft_pp","yamaharx5_fx","yamahatg33_fx","z_sawtooth",
+    "z_sine","z_square","z_tan","z_triangle","zzfx"
+]
+
+MIDI_SOUNDS = [
+    "gm_piano","gm_piano","gm_epiano1","gm_piano","gm_epiano1","gm_epiano2","gm_harpsichord","gm_clavinet",
+    "gm_celesta","gm_glockenspiel","gm_music_box","gm_vibraphone","gm_marimba","gm_xylophone","gm_tubular_bells","gm_dulcimer",
+    "gm_drawbar_organ","gm_percussive_organ","gm_rock_organ","gm_church_organ","gm_reed_organ","gm_accordion","gm_harmonica","gm_bandoneon",
+    "gm_acoustic_guitar_nylon","gm_acoustic_guitar_steel","gm_electric_guitar_jazz","gm_electric_guitar_clean",
+    "gm_electric_guitar_muted","gm_overdriven_guitar","gm_distortion_guitar","gm_guitar_harmonics",
+    "gm_acoustic_bass","gm_electric_bass_finger","gm_electric_bass_pick","gm_fretless_bass",
+    "gm_slap_bass_1","gm_slap_bass_2","gm_synth_bass_1","gm_synth_bass_2",
+    "gm_violin","gm_viola","gm_cello","gm_contrabass",
+    "gm_tremolo_strings","gm_pizzicato_strings","gm_orchestral_harp","gm_timpani",
+    "gm_string_ensemble_1","gm_string_ensemble_2","gm_synth_strings_1","gm_synth_strings_2",
+    "gm_choir_aahs","gm_voice_oohs","gm_synth_choir","gm_orchestra_hit",
+    "gm_trumpet","gm_trombone","gm_tuba","gm_muted_trumpet",
+    "gm_french_horn","gm_brass_section","gm_synth_brass_1","gm_synth_brass_2",
+    "gm_soprano_sax","gm_alto_sax","gm_tenor_sax","gm_baritone_sax",
+    "gm_oboe","gm_english_horn","gm_bassoon","gm_clarinet",
+    "gm_piccolo","gm_flute","gm_recorder","gm_pan_flute",
+    "gm_blown_bottle","gm_shakuhachi","gm_whistle","gm_ocarina",
+    "gm_lead_1_square","gm_lead_2_sawtooth","gm_lead_3_calliope","gm_lead_4_chiff",
+    "gm_lead_5_charang","gm_lead_6_voice","gm_lead_7_fifths","gm_lead_8_bass_lead",
+    "gm_pad_new_age","gm_pad_warm","gm_pad_poly","gm_pad_choir",
+    "gm_pad_bowed","gm_pad_metallic","gm_pad_halo","gm_pad_sweep",
+    "gm_fx_rain","gm_fx_soundtrack","gm_fx_crystal","gm_fx_atmosphere",
+    "gm_fx_brightness","gm_fx_goblins","gm_fx_echoes","gm_fx_sci_fi",
+    "gm_sitar","gm_banjo","gm_shamisen","gm_koto",
+    "gm_kalimba","gm_shanai","gm_fiddle","gm_shanai",
+    "gm_tinkle_bell","gm_agogo","gm_steel_drums","gm_woodblock",
+    "gm_taiko_drum","gm_melodic_tom","gm_synth_drum","gm_reverse_cymbal",
+    "gm_guitar_fret_noise","gm_breath_noise","gm_fx_rain","gm_fx_brightness",
+    "gm_fx_echoes","gm_fx_echoes","gm_fx_echoes","gm_fx_echoes"
+]
+
+SOUND_IMPROVEMENT_MAPS = {
+    "gm_piano": "piano",
+    "gm_lead_1_square": "square",
+    "gm_lead_2_sawtooth": "saw"
+}
+
+SOUND_FALLBACK = "piano"
+
+def get_sound_name(program_number):
+    if not isinstance(program_number, int) or program_number < 0 or program_number > len(MIDI_SOUNDS) - 1:
+        return SOUND_FALLBACK
+
+    sound_name = MIDI_SOUNDS[program_number]
+
+    if sound_name in SOUND_IMPROVEMENT_MAPS:
+        return SOUND_IMPROVEMENT_MAPS[sound_name]
+
+    stripped_sound_name = sound_name.replace("gm_", "")
+    if stripped_sound_name in STRUDEL_SOUNDS:
+        return stripped_sound_name
+
+    if sound_name in STRUDEL_SOUNDS:
+        return sound_name
+
+    return SOUND_FALLBACK
+
 def setup_logging():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -34,9 +163,9 @@ def main():
     args = parse_args()
     mid = load_midi_file(args.midi)
     tempo, bpm, cycle_len = get_timing_values(mid)
-    events = collect_note_events(mid, tempo)
+    events, instruments = collect_note_events(mid, tempo)
     tracks = build_tracks(events, cycle_len, args)
-    output = build_output(tracks, bpm, args.tab_size)
+    output = build_output(tracks, bpm, instruments, args)
 
     print(output)
     with open('result.txt', 'w', encoding='utf-8') as f:
@@ -46,10 +175,11 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--midi', type=str, help='Path to the Midi file. (default: Uses first .mid in folder)')
     parser.add_argument('-b', '--bar-limit', type=int, default=0, help='The amount of bars to convert. 0 means no limit. (default: %(default)s)')
-    parser.add_argument('-f', '--flat-sequences', action='store_true', help='No complex timing or chords. (default: off)')
-    parser.add_argument('-t', '--tab-size', type=int, default=2, help='How many spaces to use for indentation in the output. (default: %(default)s)')
     parser.add_argument('-n', '--notes-per-bar', type=int, default=64, help='The resolution. Usually in steps of 4 (4, 8, 16...).' \
         ' Higher gives better note placement but can get big. (default: %(default)s)')
+    parser.add_argument('-t', '--tab-size', type=int, default=2, help='How many spaces to use for indentation in the output. (default: %(default)s)')
+    parser.add_argument('-g', '--guess-instrument', action='store_true', help='Use the sounds closest to the instruments mentioned in the MIDI. (default: off)')
+    parser.add_argument('-f', '--flat-sequences', action='store_true', help='No complex timing or chords. (default: off)')
 
     args = parser.parse_args()
     parser.print_help()
@@ -83,16 +213,23 @@ def get_timing_values(mid):
 
 def collect_note_events(mid, tempo):
     events = defaultdict(list)
+    instruments = {}
     for i, track in enumerate(mid.tracks):
         time_sec = 0
+        program_number = None
         for msg in track:
             time_sec += mido.tick2second(msg.time, mid.ticks_per_beat, tempo)
+
+            if msg.type == 'program_change':
+                program_number = msg.program
+
             if msg.type == 'note_on' and msg.velocity > 0:
                 events[i].append((time_sec, note_num_to_str(msg.note)))
-    return events
+                if program_number is not None:
+                    instruments[i] = program_number
 
-NOTE_NAMES = [
-    'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b']
+    return events, instruments
+
 def note_num_to_str(n):
     return NOTE_NAMES[n % 12].lower() + str(n // 12 - 1)
 
@@ -182,17 +319,22 @@ def simplify_subdivisions(subdivs):
     
     return current
 
-def build_output(tracks, bpm, tab_size):
+def build_output(tracks, bpm, instruments, args):
     output = [f"setcpm({int(bpm)}/4)\n"]
     
-    for bars in tracks:
+    for track_index, bars in enumerate(tracks):
         output.append('$: note(`<')
         for i in range(0, len(bars), 4):
             chunk = bars[i:i+4]
-            output.append(f"{get_indent(tab_size, 2)}{' '.join(chunk)}")
+            output.append(f"{get_indent(args.tab_size, 2)}{' '.join(chunk)}")
         
         output[len(output) - 1] += '>`)'
-        output.append(f"{get_indent(tab_size, 1)}.sound(\"piano\")\n")
+
+        sound_name = SOUND_FALLBACK
+        if args.guess_instrument:
+            sound_name = get_sound_name(instruments.get(track_index))
+
+        output.append(f"{get_indent(args.tab_size, 1)}.sound(\"{sound_name}\")\n")
     
     return '\n'.join(output)
 
