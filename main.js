@@ -11,7 +11,7 @@ const NOTE_NAMES = [
   "g#",
   "a",
   "a#",
-  "b",
+  "b"
 ];
 
 const gmInstruments = [
@@ -139,7 +139,7 @@ const gmInstruments = [
   "gm_telephone",
   "gm_helicopter",
   "gm_applause",
-  "gm_gunshot",
+  "gm_gunshot"
 ];
 
 function noteNumToStr(n) {
@@ -177,7 +177,7 @@ function midiToStrudel(arrayBuffer, opts) {
     events[idx] = track.notes.map((n) => ({
       time: n.time,
       note: noteNumToStr(n.midi),
-      instrument: track.instrument,
+      instrument: track.instrument
     }));
   });
 
@@ -272,7 +272,7 @@ function run(file) {
     barLimit: parseInt($("#barLimit").value) || 0,
     notesPerBar: parseInt($("#notesPerBar").value) || 64,
     flat: $("#flat").checked,
-    tabSize: parseInt($("#tabSize").value) || 2,
+    tabSize: parseInt($("#tabSize").value) || 2
   };
   const reader = new FileReader();
   reader.onload = (e) => {
