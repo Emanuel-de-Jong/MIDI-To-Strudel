@@ -250,7 +250,7 @@ function midiToStrudel(arrayBuffer, opts) {
   let barsPerRow = 8;
   if (longestBarLength > 0) {
     const barsFit = Math.floor((160 + 1) / (longestBarLength + 1));
-    barsPerRow = Math.max(1, Math.min(8, barsFit));
+    barsPerRow = Math.max(2, Math.min(8, barsFit));
   }
 
   const out = [`setcpm(${Math.round(bpm)}/4)\n`];

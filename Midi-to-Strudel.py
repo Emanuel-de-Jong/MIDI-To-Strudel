@@ -323,7 +323,7 @@ def simplify_subdivisions(subdivs):
     
     return current
 
-def calculate_bars_per_row(tracks, max_chars=160, max_bars=8):
+def calculate_bars_per_row(tracks, max_chars=160, min_bars=2, max_bars=8):
     longest_bar = 0
     for _, bars in tracks:
         for bar in bars:
@@ -333,8 +333,7 @@ def calculate_bars_per_row(tracks, max_chars=160, max_bars=8):
         return max_bars
 
     bars_fit = (max_chars + 1) // (longest_bar + 1)
-    return max(1, min(max_bars, bars_fit))
-
+    return max(min_bars, min(max_bars, bars_fit))
 
 def build_output(tracks, bpm, instruments, args):
     output = [f"setcpm({int(bpm)}/4)\n"]
