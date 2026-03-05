@@ -214,19 +214,20 @@ def get_timing_values(mid):
 def collect_note_events(mid, tempo):
     events = defaultdict(list)
     instruments = {}
-    for i, track in enumerate(mid.tracks):
+    programs = {}
+    for track_index, track in enumerate(mid.tracks):
         time_sec = 0
-        program_number = None
         for msg in track:
             time_sec += mido.tick2second(msg.time, mid.ticks_per_beat, tempo)
 
             if msg.type == 'program_change':
-                program_number = msg.program
+                programs[(track_index, msg.channel)] = msg.program
 
             if msg.type == 'note_on' and msg.velocity > 0:
-                events[i].append((time_sec, note_num_to_str(msg.note)))
-                if program_number is not None:
-                    instruments[i] = program_number
+                key = (track_index, msg.channel)
+                events[key].append((time_sec, note_num_to_str(msg.note)))
+                if key not in instruments:
+                    instruments[key] = programs.get(key)
 
     return events, instruments
 
@@ -235,8 +236,8 @@ def note_num_to_str(n):
 
 def build_tracks(events, cycle_len, args):
     tracks = []
-    for track in sorted(events):
-        evs = adjust_near_cycle_end(events[track], cycle_len)
+    for track_key in sorted(events):
+        evs = adjust_near_cycle_end(events[track_key], cycle_len)
         if not evs:
             continue
 
@@ -255,10 +256,11 @@ def build_tracks(events, cycle_len, args):
 
             bar = get_flat_mode_bar(notes_in_cycle) if args.flat_sequences \
                 else get_poly_mode_bar(notes_in_cycle, start, cycle_len, args.notes_per_bar)
+
             bars.append(bar)
 
         if bars and any(bar != '-' for bar in bars):
-            tracks.append(bars)
+            tracks.append((track_key, bars))
 
     return tracks
 
@@ -322,7 +324,7 @@ def simplify_subdivisions(subdivs):
 def build_output(tracks, bpm, instruments, args):
     output = [f"setcpm({int(bpm)}/4)\n"]
     
-    for track_index, bars in enumerate(tracks):
+    for track_key, bars in tracks:
         output.append('$: note(`<')
         for i in range(0, len(bars), 4):
             chunk = bars[i:i+4]
@@ -332,7 +334,7 @@ def build_output(tracks, bpm, instruments, args):
 
         sound_name = SOUND_FALLBACK
         if args.guess_instrument:
-            sound_name = get_sound_name(instruments.get(track_index))
+            sound_name = get_sound_name(instruments.get(track_key))
 
         output.append(f"{get_indent(args.tab_size, 1)}.sound(\"{sound_name}\")\n")
     

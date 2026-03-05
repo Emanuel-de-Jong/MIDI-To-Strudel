@@ -113,13 +113,19 @@ function getSoundName(track) {
   if (!track.instrument) return SOUND_FALLBACK;
 
   const programNumber = track.instrument.number;
-  if (typeof programNumber !== "number" || programNumber < 0 || programNumber > MIDI_SOUNDS.length-1) {
+  if (
+    typeof programNumber !== "number" ||
+    programNumber < 0 ||
+    programNumber > MIDI_SOUNDS.length - 1
+  ) {
     return SOUND_FALLBACK;
   }
 
   let soundName = MIDI_SOUNDS[programNumber];
-  if (soundName in SOUND_IMPROVEMENT_MAPS) return SOUND_IMPROVEMENT_MAPS[soundName];
-  if (STRUDEL_SOUNDS.includes(soundName.replace("gm_", ""))) return soundName.replace("gm_", "");
+  if (soundName in SOUND_IMPROVEMENT_MAPS)
+    return SOUND_IMPROVEMENT_MAPS[soundName];
+  if (STRUDEL_SOUNDS.includes(soundName.replace("gm_", "")))
+    return soundName.replace("gm_", "");
   if (STRUDEL_SOUNDS.includes(soundName)) return soundName;
   return SOUND_FALLBACK;
 }
@@ -226,8 +232,8 @@ function midiToStrudel(arrayBuffer, opts) {
         }
       }
 
-      if (bars.length && bars.some((b) => b !== "-")){
-        tracks.push(bars);
+      if (bars.length && bars.some((b) => b !== "-")) {
+        tracks.push({ bars, track: midi.tracks[trackIdx] });
       }
     });
 
@@ -236,7 +242,10 @@ function midiToStrudel(arrayBuffer, opts) {
 
   const out = [`setcpm(${Math.round(bpm)}/4)\n`];
   console.log("tracks@", tracks);
-  tracks.forEach((bars, idx) => {
+  tracks.forEach((trackData) => {
+    const bars = trackData.bars;
+    const track = trackData.track;
+
     out.push("$: note(`<");
     for (let i = 0; i < bars.length; i += 4) {
       const chunk = bars.slice(i, i + 4).join(" ");
@@ -244,7 +253,6 @@ function midiToStrudel(arrayBuffer, opts) {
     }
 
     out[out.length - 1] += ">`)";
-    let track = midi.tracks[idx];
     console.log("track@", track);
 
     let soundName = SOUND_FALLBACK;
@@ -316,7 +324,9 @@ $("#convertBtn").addEventListener("click", () => {
 );
 
 function handleFileSelect(e) {
-  const file = [...e.dataTransfer.files].find((x) => /\.(mid|midi)$/i.test(x.name));
+  const file = [...e.dataTransfer.files].find((x) =>
+    /\.(mid|midi)$/i.test(x.name)
+  );
   if (file) {
     $("#file").files = e.dataTransfer.files;
     run(file);
