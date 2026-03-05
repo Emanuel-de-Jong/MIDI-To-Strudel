@@ -180,6 +180,8 @@ def parse_args():
     parser.add_argument('-t', '--tab-size', type=int, default=2, help='How many spaces to use for indentation in the output. (default: %(default)s)')
     parser.add_argument('-g', '--guess-instrument', action='store_true', help='Use the sounds closest to the instruments mentioned in the MIDI. (default: off)')
     parser.add_argument('-f', '--flat-sequences', action='store_true', help='No complex timing or chords. (default: off)')
+    parser.add_argument('-s', '--small-print', action='store_true', help='Put all notes on a single line.' \
+        ' Makes it harder to make changes, but takes up less space for a drop & forget. (default: off)')
 
     args = parser.parse_args()
     parser.print_help()
@@ -339,12 +341,15 @@ def build_output(tracks, bpm, instruments, args):
 
     bars_per_row = calculate_bars_per_row(tracks)
     for track_key, bars in tracks:
-        output.append('$: note(`<')
-        for i in range(0, len(bars), bars_per_row):
-            chunk = bars[i:i + bars_per_row]
-            output.append(f"{get_indent(args.tab_size, 2)}{' '.join(chunk)}")
-        
-        output[-1] += '>`)'
+        if (args.small_print):
+            output.append(f"$: note(`<{''.join(bars)}>`)")
+        else:
+            output.append('$: note(`<')
+            for i in range(0, len(bars), bars_per_row):
+                chunk = bars[i:i + bars_per_row]
+                output.append(f"{get_indent(args.tab_size, 2)}{' '.join(chunk)}")
+            
+            output[-1] += '>`)'
 
         sound_name = SOUND_FALLBACK
         if args.guess_instrument:

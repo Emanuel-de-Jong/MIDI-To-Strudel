@@ -200,7 +200,7 @@ function midiToStrudel(arrayBuffer, opts) {
           continue;
         }
 
-        if (opts.flat) {
+        if (opts.flatSequences) {
           const notes = inCycle.map((e) => e.note);
           bars.push(notes.length === 1 ? notes[0] : `[${notes.join(" ")}]`);
         } else {
@@ -259,14 +259,17 @@ function midiToStrudel(arrayBuffer, opts) {
     const bars = trackData.bars;
     const track = trackData.track;
 
-    out.push("$: note(`<");
-    for (let i = 0; i < bars.length; i += barsPerRow) {
-      const chunk = bars.slice(i, i + barsPerRow).join(" ");
-      out.push(`${indent(opts.tabSize * 2)}${chunk}`);
-    }
+    if (opts.smallPrint) {
+      out.push(`$: note(\`<${bars.join("")}>\`)`);
+    } else {
+      out.push("$: note(`<");
+      for (let i = 0; i < bars.length; i += barsPerRow) {
+        const chunk = bars.slice(i, i + barsPerRow).join(" ");
+        out.push(`${indent(opts.tabSize * 2)}${chunk}`);
+      }
 
-    out[out.length - 1] += ">`)";
-    console.log("track@", track);
+      out[out.length - 1] += ">`)";
+    }
 
     let soundName = SOUND_FALLBACK;
     if (opts.guessInstrument) {
@@ -286,7 +289,8 @@ function run(file) {
     notesPerBar: parseInt($("#notesPerBar").value) || 64,
     tabSize: parseInt($("#tabSize").value) || 2,
     guessInstrument: $("#guessInstrument").checked,
-    flat: $("#flat").checked
+    flatSequences: $("#flatSequences").checked,
+    smallPrint: $("#smallPrint").checked
   };
 
   const reader = new FileReader();

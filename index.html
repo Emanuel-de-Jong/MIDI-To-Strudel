@@ -18,7 +18,7 @@
   <body
     class="min-h-screen flex items-center justify-center bg-gradient-to-tr from-slate-900 to-slate-800 text-gray-100"
   >
-    <main class="w-full max-w-4xl p-2 space-y-8">
+    <main class="w-full max-w-4xl p-2 space-y-7">
       <h1 class="text-2xl font-bold">MIDI → Strudel v1.1</h1>
 
       <section class="space-y-2 text-sm">
@@ -34,8 +34,8 @@
       <section class="space-y-2 text-sm">
         <h2 class="text-base font-semibold opacity-80">Options</h2>
 
-        <label class="flex items-center gap-2">
-          <span>Bars limit</span>
+        <label class="flex items-center gap-2" title="The amount of bars to convert. 0 means no limit.">
+          <span>Bar limit</span>
           <input
             id="barLimit"
             type="number"
@@ -45,7 +45,7 @@
           />
         </label>
 
-        <label class="flex items-center gap-2">
+        <label class="flex items-center gap-2" title="The resolution. Usually in steps of 4 (4, 8, 16...). Higher gives better note placement but can get big.">
           <span>Notes per bar</span>
           <input
             id="notesPerBar"
@@ -56,8 +56,8 @@
           />
         </label>
 
-        <label class="flex items-center gap-2">
-          <span>Indent spaces</span>
+        <label class="flex items-center gap-2" title="How many spaces to use for indentation in the output.">
+          <span>Tab size</span>
           <input
             id="tabSize"
             type="number"
@@ -74,8 +74,13 @@
         </label>
 
         <label class="flex items-center gap-2">
-          <input id="flat" type="checkbox" />
-          <span>Flat sequences (no chords/timing)</span>
+          <input id="flatSequences" type="checkbox" />
+          <span>No complex timing or chords</span>
+        </label>
+
+        <label class="flex items-center gap-2" title="Makes it harder to make changes, but takes up less space for a drop & forget.">
+          <input id="smallPrint" type="checkbox" />
+          <span>Put all notes on a single line</span>
         </label>
 
         <button
