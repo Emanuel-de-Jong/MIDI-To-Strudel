@@ -22,7 +22,7 @@
       <h1 class="text-2xl font-bold">MIDI → Strudel v1.1</h1>
 
       <section class="space-y-2 text-sm">
-        <p>Drop a midi file anywhere in the window</p>
+        <p>Drop a MIDI file anywhere in the window</p>
         <input
           id="file"
           type="file"
@@ -69,6 +69,11 @@
         </label>
 
         <label class="flex items-center gap-2">
+          <input id="guessInstrument" type="checkbox" checked />
+          <span>Use the sounds closest to the instruments mentioned in the MIDI</span>
+        </label>
+
+        <label class="flex items-center gap-2">
           <input id="flat" type="checkbox" />
           <span>Flat sequences (no chords/timing)</span>
         </label>
@@ -91,13 +96,6 @@
           class="w-full h-64 px-3 py-2 rounded bg-gray-700 font-mono text-sm"
         ></textarea>
 
-        <button
-          id="openBtn"
-          class="hidden px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold"
-        >
-          Open in Strudel
-        </button>
-
         <p class="text-xs opacity-70">
           Visit the
           <a
@@ -109,6 +107,13 @@
           </a>
           for a Python version and the source code.
         </p>
+
+        <button
+          id="openBtn"
+          class="hidden px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full font-semibold"
+        >
+          Open in Strudel
+        </button>
       </section>
     </main>
 

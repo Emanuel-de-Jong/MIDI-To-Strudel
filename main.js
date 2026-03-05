@@ -2,7 +2,7 @@
 const NOTE_NAMES = [
   "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"];
 
-const strudelSounds = [
+const STRUDEL_SOUNDS = [
   "agogo","balafon","balafon_hard","balafon_soft","ballwhistle","belltree",
   "bongo","bytebeat","cabasa","cajon","casio","clash","clash2","clave",
   "clavisynth","conga","cowbell","dantranh","dantranh_tremolo",
@@ -68,7 +68,7 @@ const strudelSounds = [
   "z_sine","z_square","z_tan","z_triangle","zzfx"
 ];
 
-const midiSounds = [
+const MIDI_SOUNDS = [
   "gm_piano","gm_piano","gm_epiano1","gm_piano","gm_epiano1","gm_epiano2","gm_harpsichord","gm_clavinet",
   "gm_celesta","gm_glockenspiel","gm_music_box","gm_vibraphone","gm_marimba","gm_xylophone","gm_tubular_bells","gm_dulcimer",
   "gm_drawbar_organ","gm_percussive_organ","gm_rock_organ","gm_church_organ","gm_reed_organ","gm_accordion","gm_harmonica","gm_bandoneon",
@@ -100,39 +100,30 @@ const midiSounds = [
   "gm_fx_echoes","gm_fx_echoes","gm_fx_echoes","gm_fx_echoes"
 ];
 
-const soundFallbackMaps = {
+const SOUND_IMPROVEMENT_MAPS = {
   gm_piano: "piano",
-  gm_violin: "violin",
-  gm_cello: "cello",
-  gm_flute: "flute",
-  gm_clarinet: "clarinet",
-  gm_trumpet: "trumpet",
-  gm_trombone: "trombone",
-  gm_tuba: "tuba",
-  gm_sax: "sax",
-  gm_glockenspiel: "glockenspiel",
-  gm_marimba: "marimba",
-  gm_xylophone: "xylophone_medium_ff",
-  gm_timpani: "timpani",
-  gm_vibraphone: "vibraphone",
-  gm_pad_warm: "supersaw",
-  gm_lead_2_sawtooth: "saw",
-  gm_lead_1_square: "square"
+  gm_lead_1_square: "square",
+  gm_lead_2_sawtooth: "saw"
 };
 
-const soundFallback = "piano";
+const SOUND_FALLBACK = "piano";
 
-function getInstrumentName(track) {
-  if (!track.instrument) return soundFallback;
+function getSoundName(track) {
+  if (!track.instrument) return SOUND_FALLBACK;
 
-  const programNumber = track.instrument.number || 0;
-  let soundName = midiSounds[programNumber] || soundFallback;
-
-  if (!strudelSounds.includes(soundName)) {
-    soundName = soundFallbackMaps[soundName] || soundFallback;
+  const programNumber = track.instrument.number;
+  if (typeof programNumber !== "number" || programNumber < 0 || programNumber > MIDI_SOUNDS.length-1) {
+    return SOUND_FALLBACK;
   }
 
-  return soundName;
+  let soundName = MIDI_SOUNDS[programNumber];
+  if (soundName in SOUND_IMPROVEMENT_MAPS) return SOUND_IMPROVEMENT_MAPS[soundName];
+  if (STRUDEL_SOUNDS.includes(soundName)) return soundName;
+
+  soundName = soundName.replace("gm_", "");
+  if (STRUDEL_SOUNDS.includes(soundName)) return soundName;
+
+  return SOUND_FALLBACK;
 }
 
 function noteNumToStr(n) {
@@ -257,7 +248,13 @@ function midiToStrudel(arrayBuffer, opts) {
     out[out.length - 1] += ">`)";
     let track = midi.tracks[idx];
     console.log("track@", track);
-    out.push(`${indent(opts.tabSize)}.sound("${getInstrumentName(track)}")\n`);
+
+    let soundName = SOUND_FALLBACK;
+    if (opts.guessInstrument) {
+      soundName = getSoundName(track);
+    }
+
+    out.push(`${indent(opts.tabSize)}.sound("${soundName}")\n`);
   });
   return out.join("\n");
 }
@@ -268,8 +265,9 @@ function run(file) {
   const opts = {
     barLimit: parseInt($("#barLimit").value) || 0,
     notesPerBar: parseInt($("#notesPerBar").value) || 64,
-    flat: $("#flat").checked,
-    tabSize: parseInt($("#tabSize").value) || 2
+    tabSize: parseInt($("#tabSize").value) || 2,
+    guessInstrument: $("#guessInstrument").checked,
+    flat: $("#flat").checked
   };
 
   const reader = new FileReader();
