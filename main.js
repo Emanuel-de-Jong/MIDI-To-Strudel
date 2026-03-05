@@ -68,7 +68,7 @@ const strudelSounds = [
   "z_sine","z_square","z_tan","z_triangle","zzfx"
 ];
 
-const gmProgramSoundMap = [
+const midiSounds = [
   "gm_piano","gm_piano","gm_epiano1","gm_piano","gm_epiano1","gm_epiano2","gm_harpsichord","gm_clavinet",
   "gm_celesta","gm_glockenspiel","gm_music_box","gm_vibraphone","gm_marimba","gm_xylophone","gm_tubular_bells","gm_dulcimer",
   "gm_drawbar_organ","gm_percussive_organ","gm_rock_organ","gm_church_organ","gm_reed_organ","gm_accordion","gm_harmonica","gm_bandoneon",
@@ -100,34 +100,36 @@ const gmProgramSoundMap = [
   "gm_fx_echoes","gm_fx_echoes","gm_fx_echoes","gm_fx_echoes"
 ];
 
+const soundFallbackMaps = {
+  gm_piano: "piano",
+  gm_violin: "violin",
+  gm_cello: "cello",
+  gm_flute: "flute",
+  gm_clarinet: "clarinet",
+  gm_trumpet: "trumpet",
+  gm_trombone: "trombone",
+  gm_tuba: "tuba",
+  gm_sax: "sax",
+  gm_glockenspiel: "glockenspiel",
+  gm_marimba: "marimba",
+  gm_xylophone: "xylophone_medium_ff",
+  gm_timpani: "timpani",
+  gm_vibraphone: "vibraphone",
+  gm_pad_warm: "supersaw",
+  gm_lead_2_sawtooth: "saw",
+  gm_lead_1_square: "square"
+};
+
+const soundFallback = "piano";
+
 function getInstrumentName(track) {
-  if (!track.instrument) return "piano";
+  if (!track.instrument) return soundFallback;
 
   const programNumber = track.instrument.number || 0;
-  let soundName = gmProgramSoundMap[programNumber] || "piano";
+  let soundName = midiSounds[programNumber] || soundFallback;
 
   if (!strudelSounds.includes(soundName)) {
-    const fallbackMap = {
-      gm_piano: "piano",
-      gm_violin: "violin",
-      gm_cello: "cello",
-      gm_flute: "flute",
-      gm_clarinet: "clarinet",
-      gm_trumpet: "trumpet",
-      gm_trombone: "trombone",
-      gm_tuba: "tuba",
-      gm_sax: "sax",
-      gm_glockenspiel: "glockenspiel",
-      gm_marimba: "marimba",
-      gm_xylophone: "xylophone_medium_ff",
-      gm_timpani: "timpani",
-      gm_vibraphone: "vibraphone",
-      gm_pad_warm: "supersaw",
-      gm_lead_2_sawtooth: "saw",
-      gm_lead_1_square: "square"
-    };
-
-    soundName = fallbackMap[soundName] || "piano";
+    soundName = soundFallbackMaps[soundName] || soundFallback;
   }
 
   return soundName;
