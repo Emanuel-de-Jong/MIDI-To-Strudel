@@ -151,93 +151,112 @@ function simplifySubdivisions(arr) {
   return cur;
 }
 
-/* ---------- core ---------- */
-function midiToStrudel(arrayBuffer, opts) {
-  const midi = new Midi(arrayBuffer); // <- @tonejs/midi
-  console.log("midi@", midi);
-  const ppq = midi.header.ppq;
-  const bpm = midi.header.tempos.length ? midi.header.tempos[0].bpm : 120;
-  const cycleLen = (60 / bpm) * 4; // 1 cycle = 4 beats
-
-  /* collect note_on events */
-  const events = {}; // trackIndex -> [{time,note},...]
-  midi.tracks.forEach((track, idx) => {
+function collectEvents(midi) {
+  const events = {};
+  midi.tracks.forEach((track, trackIndex) => {
     if (!track.notes.length) return;
 
-    events[idx] = track.notes.map((n) => ({
-      time: n.time,
-      note: noteNumToStr(n.midi),
+    events[trackIndex] = track.notes.map((note) => ({
+      time: note.time,
+      note: noteNumToStr(note.midi),
       instrument: track.instrument
     }));
   });
+  return events;
+}
 
-  /* build bars */
-  const tracks = [];
-  Object.keys(events)
-    .sort((a, b) => a - b)
-    .forEach((trackIdx) => {
-      const evs = events[trackIdx];
-      /* push notes >95% into next cycle */
-      const adj = evs.map((e) => {
-        const rel = (e.time % cycleLen) / cycleLen;
-        return rel > 0.95
-          ? { ...e, time: Math.ceil(e.time / cycleLen) * cycleLen }
-          : e;
+function adjustLateNotes(events, cycleLen) {
+  return events.map((event) => {
+    const rel = (event.time % cycleLen) / cycleLen;
+    return rel > 0.95
+      ? { ...event, time: Math.ceil(event.time / cycleLen) * cycleLen }
+      : event;
+  });
+}
+
+function buildCycleBars(events, track, cycleLen, opts) {
+  const adjustedEvents = adjustLateNotes(events, cycleLen);
+
+  const maxTime = Math.max(...adjustedEvents.map((event) => event.time));
+  const numCycles =
+    opts.barLimit > 0
+      ? Math.min(Math.floor(maxTime / cycleLen) + 1, opts.barLimit)
+      : Math.floor(maxTime / cycleLen) + 1;
+
+  const bars = [];
+
+  for (let cycleIndex = 0; cycleIndex < numCycles; cycleIndex++) {
+    const start = cycleIndex * cycleLen;
+    const end = start + cycleLen;
+
+    const eventsInCycle = adjustedEvents.filter(
+      (event) => event.time >= start && event.time < end
+    );
+
+    if (!eventsInCycle.length) {
+      bars.push("-");
+      continue;
+    }
+
+    if (opts.flatSequences) {
+      const notes = eventsInCycle.map((event) => event.note);
+      bars.push(notes.length === 1 ? notes[0] : `[${notes.join(" ")}]`);
+      continue;
+    }
+
+    const groups = {};
+    eventsInCycle.forEach((event) => {
+      const pos = quantizeTime(event.time, start, cycleLen, opts.notesPerBar);
+      const key = Math.round(pos * opts.notesPerBar) / opts.notesPerBar;
+      (groups[key] || (groups[key] = [])).push(event.note);
+    });
+
+    const subdiv = Array(opts.notesPerBar).fill("-");
+    Object.keys(groups)
+      .sort((a, b) => a - b)
+      .forEach((key) => {
+        const index = Math.round(parseFloat(key) * opts.notesPerBar);
+        if (index < opts.notesPerBar) {
+          const group = groups[key];
+          subdiv[index] =
+            group.length === 1 ? group[0] : `[${group.join(",")}]`;
+        }
       });
 
-      const maxT = Math.max(...adj.map((e) => e.time));
-      const numCycles =
-        opts.barLimit > 0
-          ? Math.min(Math.floor(maxT / cycleLen) + 1, opts.barLimit)
-          : Math.floor(maxT / cycleLen) + 1;
-      const bars = [];
-      for (let c = 0; c < numCycles; c++) {
-        const start = c * cycleLen,
-          end = start + cycleLen;
-        const inCycle = adj.filter((e) => e.time >= start && e.time < end);
-        if (!inCycle.length) {
-          bars.push("-");
-          continue;
-        }
+    const simplified = simplifySubdivisions(subdiv);
+    const bar =
+      simplified.length === 1 ? simplified[0] : `[${simplified.join(" ")}]`;
 
-        if (opts.flatSequences) {
-          const notes = inCycle.map((e) => e.note);
-          bars.push(notes.length === 1 ? notes[0] : `[${notes.join(" ")}]`);
-        } else {
-          const groups = {}; // pos -> [notes]
-          inCycle.forEach((e) => {
-            const pos = quantizeTime(e.time, start, cycleLen, opts.notesPerBar);
-            const key = Math.round(pos * opts.notesPerBar) / opts.notesPerBar;
-            (groups[key] || (groups[key] = [])).push(e.note);
-          });
+    bars.push(
+      bar === "[" + Array(opts.notesPerBar).fill("-").join(" ") + "]"
+        ? "-"
+        : bar
+    );
+  }
 
-          const subdiv = Array(opts.notesPerBar).fill("-");
-          Object.keys(groups)
-            .sort((a, b) => a - b)
-            .forEach((k) => {
-              const idx = Math.round(parseFloat(k) * opts.notesPerBar);
-              if (idx < opts.notesPerBar) {
-                const g = groups[k];
-                subdiv[idx] = g.length === 1 ? g[0] : `[${g.join(",")}]`;
-              }
-            });
+  return { bars, track };
+}
 
-          const simp = simplifySubdivisions(subdiv);
-          const bar = simp.length === 1 ? simp[0] : `[${simp.join(" ")}]`;
-          bars.push(
-            bar === "[" + Array(opts.notesPerBar).fill("-").join(" ") + "]"
-              ? "-"
-              : bar
-          );
-        }
-      }
+function buildTracks(events, midi, cycleLen, opts) {
+  const tracks = [];
 
-      if (bars.length && bars.some((b) => b !== "-")) {
-        tracks.push({ bars, track: midi.tracks[trackIdx] });
+  Object.keys(events)
+    .sort((a, b) => a - b)
+    .forEach((trackIndex) => {
+      const trackEvents = events[trackIndex];
+      const track = midi.tracks[trackIndex];
+
+      const trackData = buildCycleBars(trackEvents, track, cycleLen, opts);
+
+      if (trackData.bars.length && trackData.bars.some((bar) => bar !== "-")) {
+        tracks.push(trackData);
       }
     });
 
-  /* build text */
+  return tracks;
+}
+
+function formatStrudelOutput(tracks, bpm, opts) {
   const indent = (n) => " ".repeat(n);
 
   let longestBarLength = 0;
@@ -279,6 +298,20 @@ function midiToStrudel(arrayBuffer, opts) {
     out.push(`${indent(opts.tabSize)}.sound("${soundName}")\n`);
   });
   return out.join("\n");
+}
+
+/* ---------- core ---------- */
+function midiToStrudel(arrayBuffer, opts) {
+  const midi = new Midi(arrayBuffer); // <- @tonejs/midi
+  console.log("midi@", midi);
+  const ppq = midi.header.ppq;
+  const bpm = midi.header.tempos.length ? midi.header.tempos[0].bpm : 120;
+  const cycleLen = (60 / bpm) * 4; // 1 cycle = 4 beats
+
+  const events = collectEvents(midi);
+  const tracks = buildTracks(events, midi, cycleLen, opts);
+
+  return formatStrudelOutput(tracks, bpm, opts);
 }
 
 /* ---------- UI ---------- */
