@@ -670,7 +670,7 @@ def compress_sequence(seq):
                 if current == "-":
                     result.append(f"{current}@{ count}")
                 else:
-                    result.append(f"{current}*{ count}")
+                    result.append(f"{current}!{ count}")
             else:
                 result.append(current)
             current = item
@@ -680,7 +680,7 @@ def compress_sequence(seq):
         if current == "-":
             result.append(f"{current}@{ count}")
         else:
-            result.append(f"{current}*{ count}")
+            result.append(f"{current}!{ count}")
     else:
         result.append(current)
     return result
