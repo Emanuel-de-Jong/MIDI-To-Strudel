@@ -1,5 +1,2 @@
 [tools]
 uv = "latest"
-
-[settings]
-experimental = true
