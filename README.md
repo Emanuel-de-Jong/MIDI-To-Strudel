@@ -25,27 +25,16 @@ $: note(`<
 > Only 4/4 time signature is supported for now! PRs are welcome.
 
 **Active Development:** 2025-06-23 - 2026-03-05<br>
-**Last Change:** 2026-03-05<br>
+**Last Change:** 2026-05-07<br>
 
-|                                |                                       |
-| :----------------------------: | :-----------------------------------: |
+| | |
+| :---: | :---: |
 | ![](/screenshots/1-Webapp.png) | ![](/screenshots/2-Drag_and_Drop.png) |
 
 ## Requirements
 
-- python (I use 3.11.9 but most versions will work)
+- python
 - mido (in `requirements.txt`)
-
-## Development environment
-
-```shell
-mise trust
-mise install
-uv python install 3.12
-uv venv --python 3.12
-uv sync
-
-```
 
 ## Usage
 
@@ -73,6 +62,21 @@ usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n N
 - Support more starting time signatures than only 4/4.
 - Support mid-song time signature switches.
 
-## Contributors
+## Contribution
 
-- [rayanfer32](https://github.com/rayanfer32) (Created the web version up to v0.3)
+For development it's important to have an environment that works the same for all contributors. Follow these steps to set it up:
+1. Install [mise](https://mise.en.dev/)
+2. In the root folder of the project, run:
+
+```shell
+mise trust
+mise install
+uv python install 3.12
+uv venv --python 3.12
+uv sync
+```
+
+### Contributors
+
+- [badele](https://github.com/badele): Added a reproducible Python environment with mise and uv
+- [rayanfer32](https://github.com/rayanfer32): Created the web version up to v0.3

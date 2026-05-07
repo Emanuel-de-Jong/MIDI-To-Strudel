@@ -1,9 +1,11 @@
 # MIDI To Strudel (Web)
+
 > Free hosted webapp: https://emanuel-de-jong.github.io/MIDI-To-Strudel/
 
 A simple browser-based converter is included so you can try conversions without installing Python. The web UI accepts a MIDI file via drag & drop or file picker and shows the resulting Strudel code directly in the page.
 
 It sets the right cpm and creates a new sound source per Midi track. Example output:
+
 ```
 setcpm(91/4)
 
@@ -23,5 +25,6 @@ Notes:
 - If you encounter browser permission or CORS issues, serve the repo with `python -m http.server`
 
 ## TODO
+
 - Support more starting time signatures than only 4/4.
 - Support mid-song time signature switches.
