@@ -1,10 +1,12 @@
 # MIDI To Strudel
+
 > You can try the web version here: https://emanuel-de-jong.github.io/MIDI-To-Strudel/ <br>
 > Read more about the webapp: [README.web](/README.web.md)
 
 A python script that converts a Midi file to Strudel code. For artists that like remixing.
 
 It sets the right cpm and creates a new sound source per Midi track. Example output:
+
 ```
 setcpm(91/4)
 
@@ -25,22 +27,36 @@ $: note(`<
 **Active Development:** 2025-06-23 - 2026-03-05<br>
 **Last Change:** 2026-03-05<br>
 
-| | |
-| :---: | :---: |
+|                                |                                       |
+| :----------------------------: | :-----------------------------------: |
 | ![](/screenshots/1-Webapp.png) | ![](/screenshots/2-Drag_and_Drop.png) |
 
 ## Requirements
+
 - python (I use 3.11.9 but most versions will work)
 - mido (in `requirements.txt`)
 
+## Development environment
+
+```shell
+mise trust
+mise install
+uv python install 3.12
+uv venv --python 3.12
+uv sync
+
+```
+
 ## Usage
+
 1. Run `pip install -r requirements.txt` to install the dependencies.
 2. There are two ways to run the tool:
-    - If you're on Windows, the easiest way is dragging your Midi file onto the `Drag-and-Drop.bat` script. However, this way you can't set console arguments.
-    - Run the tool directly with `python Midi-to-Strudel.py`.
+   - If you're on Windows, the easiest way is dragging your Midi file onto the `Drag-and-Drop.bat` script. However, this way you can't set console arguments.
+   - Run the tool directly with `python Midi-to-Strudel.py`.
 3. Get the Strudel code. Either from the text in the console or the content of the new `result.txt` file.
 
 ### Arguments
+
 ```
 usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n NOTES_PER_BAR]
   -m, --midi              Path to the Midi file. (default: Uses first .mid in folder)
@@ -53,8 +69,10 @@ usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n N
 ```
 
 ## TODO
+
 - Support more starting time signatures than only 4/4.
 - Support mid-song time signature switches.
 
 ## Contributors
+
 - [rayanfer32](https://github.com/rayanfer32) (Created the web version up to v0.3)
