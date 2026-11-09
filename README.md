@@ -36,18 +36,34 @@ $: note(`<
 - python
 - mido (in `requirements.txt`)
 
+## Install
+
+Install as a standalone command-line tool with [uv](https://docs.astral.sh/uv/):
+
+```shell
+uv tool install git+https://github.com/Emanuel-de-Jong/MIDI-To-Strudel
+```
+
+This puts a `midi-to-strudel` command on your PATH. Run it from any folder containing a Midi file, or pass one explicitly:
+
+```shell
+midi-to-strudel --midi path/to/song.mid
+```
+
 ## Usage
+
+If you'd rather run from a checkout instead of installing:
 
 1. Run `pip install -r requirements.txt` to install the dependencies.
 2. There are two ways to run the tool:
    - If you're on Windows, the easiest way is dragging your Midi file onto the `Drag-and-Drop.bat` script. However, this way you can't set console arguments.
-   - Run the tool directly with `python Midi-to-Strudel.py`.
+   - Run the tool directly with `python midi_to_strudel.py`.
 3. Get the Strudel code. Either from the text in the console or the content of the new `result.txt` file.
 
 ### Arguments
 
 ```
-usage: Midi-to-Strudel.py [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n NOTES_PER_BAR]
+usage: midi-to-strudel [-h] [-m MIDI] [-b BAR_LIMIT] [-f] [-t TAB_SIZE] [-n NOTES_PER_BAR]
   -m, --midi              Path to the Midi file. (default: Uses first .mid in folder)
   -b, --bar-limit         The amount of bars to convert. 0 means no limit. (default: 0)
   -n, --notes-per-bar     The resolution. Usually in steps of 4 (4, 8, 16...).
